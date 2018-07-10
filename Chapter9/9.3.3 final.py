@@ -14,6 +14,8 @@ Created on Tue Jul 10 13:03:08 2018
 
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.colors as colors
+
 from sklearn.naive_bayes import GaussianNB    #Scikit learn has estimwator to perform gaussian naive bayes classification
 import astroML.plotting
 
@@ -35,10 +37,10 @@ xx, yy = np.meshgrid(np.linspace(xlim[0], xlim[1], 71),    #meshgrid ??????
 
 Z = gnb.predict_proba(np.c_[xx.ravel(), yy.ravel()])         #predicts ??????
 Z = Z[:, 1].reshape(xx.shape)         #Takes second column of Z and makes it same shape as xx meshgrid
-
+color = ['red','blue']
 fig = plt.figure(figsize=(5, 3.75))    #Creates figure
 ax = fig.add_subplot(111)            #Subplot and position in figure
-ax.scatter(X[:, 0], X[:, 1], c=Y, zorder=2)   #Plots the array of 100 points. colour is black if Y=1
+ax.scatter(X[:, 0], X[:, 1], c=Y, cmap=colors.ListedColormap(color),zorder=2)   #Plots the array of 100 points. colour is black if Y=1
 ax.contour(xx, yy, Z, [0.5], colors='k')    #Plots the decision boundary
 plt.scatter(x[0], x[1])
 
