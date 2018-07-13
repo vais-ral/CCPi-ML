@@ -16,12 +16,18 @@ import os
 
 import cntk as C
 import cntk.tests.test_utils
-
-
+import time
+    
 cntk.tests.test_utils.set_device_from_pytest_env() # (only needed for our build system)
 C.cntk_py.set_fixed_random_seed(1)
 
+##--------------------------------------------------------------------------------------------
 
+
+
+##--------------------------------------------------------------------------------------------
+    
+    
 #CNTK Neural Network Builder
 def create_modelNN(features):
     with C.layers.default_options(init=C.layers.glorot_uniform(), activation=C.sigmoid):
@@ -81,7 +87,7 @@ def convertLabels(labels,samplesize,out):
 input_dim = 400
 num_output_classes = 10
 num_hidden_layers = 1
-hidden_layers_dim = 25
+hidden_layers_dim = 200
 mysamplesize = 5000
 
 #############################################################
@@ -102,6 +108,9 @@ print("Feat",features.shape)
 labels = convertLabels(labels,mysamplesize,num_output_classes)
 print("Label",labels.shape)
 
+plt.imshow(np.reshape(features[0],(20,20)))
+plt.show()
+
 ###########################################################
 ############Netowork Building##############################
 
@@ -119,14 +128,14 @@ eval_error = C.classification_error(z, label)
 #########################################################
 #########Learning Parameters############################
 #Alpha learning rate
-learning_rate = 0.02
+learning_rate = 0.8
 lr_schedule = C.learning_parameter_schedule(learning_rate) 
 learner = C.sgd(z.parameters, lr_schedule)
 trainer = C.Trainer(z, (loss, eval_error), [learner])
 
 minibatch_size = 64
 num_samples_per_sweep = 5000
-num_sweeps_to_train_with = 100
+num_sweeps_to_train_with = 10
 num_minibatches_to_train = (num_samples_per_sweep * num_sweeps_to_train_with) / minibatch_size
 
 training_progress_output_freq = 20
@@ -137,6 +146,8 @@ plotdata = {"batchsize":[], "loss":[], "error":[]}
 
 ###########################################################
 #############Training########################################
+
+start = time.time()
 for i in range(0, int(num_minibatches_to_train)):
     
     # Specify the input variables mapping in the model to actual minibatch data for training
@@ -148,7 +159,8 @@ for i in range(0, int(num_minibatches_to_train)):
         plotdata["batchsize"].append(batchsize)
         plotdata["loss"].append(loss)
         plotdata["error"].append(error)
-        
+end = time.time()
+print (end-start)
         
 plotdata["avgloss"] = moving_average(plotdata["loss"])
 plotdata["avgerror"] = moving_average(plotdata["error"])
