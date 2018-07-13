@@ -33,7 +33,7 @@ setup_text_plots(fontsize=8, usetex=False)
 
 X, y = fetch_rrlyrae_combined()
 
-np.savetxt('AstroML_Data.txt',X,fmt='%d')
-np.savetxt('AstroML_Labels.txt',y,fmt='%d')
+np.savetxt('AstroML_Data.txt',X)
+np.savetxt('AstroML_Labels.txt',y)
 
 print("Done")
