@@ -30,7 +30,7 @@ C.cntk_py.set_fixed_random_seed(1)
     
 #CNTK Neural Network Builder
 def create_modelNN(features):
-    with C.layers.default_options(init=C.layers.glorot_uniform(), activation=C.sigmoid):
+    with C.layers.default_options(init=C.layers.glorot_uniform(), activation=C.relu):
         h = features
         for _ in range(num_hidden_layers):
             h = C.layers.Dense(hidden_layers_dim)(h)
@@ -87,7 +87,7 @@ def convertLabels(labels,samplesize,out):
 input_dim = 400
 num_output_classes = 10
 num_hidden_layers = 1
-hidden_layers_dim = 200
+hidden_layers_dim = 25
 mysamplesize = 5000
 
 #############################################################
@@ -110,72 +110,89 @@ print("Label",labels.shape)
 
 plt.imshow(np.reshape(features[0],(20,20)))
 plt.show()
+features = features[:3500]
+labels = labels[:3500]
 
 ###########################################################
 ############Netowork Building##############################
-
-#Define input and output dimensions
-input1 = C.input_variable(input_dim)
-label = C.input_variable(num_output_classes)
-
-#Generate Netowrk model with CNTK layer tempate function
-z = create_modelNN(input1)
-
-loss = C.cross_entropy_with_softmax(z, label)
-eval_error = C.classification_error(z, label)
-
-
-#########################################################
-#########Learning Parameters############################
-#Alpha learning rate
-learning_rate = 0.8
-lr_schedule = C.learning_parameter_schedule(learning_rate) 
-learner = C.sgd(z.parameters, lr_schedule)
-trainer = C.Trainer(z, (loss, eval_error), [learner])
-
-minibatch_size = 64
-num_samples_per_sweep = 5000
-num_sweeps_to_train_with = 10
-num_minibatches_to_train = (num_samples_per_sweep * num_sweeps_to_train_with) / minibatch_size
-
-training_progress_output_freq = 20
-
-plotdata = {"batchsize":[], "loss":[], "error":[]}
-
-
-
-###########################################################
-#############Training########################################
-
-start = time.time()
-for i in range(0, int(num_minibatches_to_train)):
+for bb in np.arange(0,500,10):
+    print('batch',bb)
+    #Define input and output dimensions
+    input1 = C.input_variable(input_dim)
+    label = C.input_variable(num_output_classes)
     
-    # Specify the input variables mapping in the model to actual minibatch data for training
-    trainer.train_minibatch({input1 : features, label : labels})
-    batchsize, loss, error = print_training_progress(trainer, i, 
-                                                     training_progress_output_freq, verbose=0)
+    #Generate Netowrk model with CNTK layer tempate function
+    z = create_modelNN(input1)
     
-    if not (loss == "NA" or error =="NA"):
-        plotdata["batchsize"].append(batchsize)
-        plotdata["loss"].append(loss)
-        plotdata["error"].append(error)
-end = time.time()
-print (end-start)
+    loss = C.cross_entropy_with_softmax(z, label)
+    eval_error = C.classification_error(z, label)
+    
+    
+    #########################################################
+    #########Learning Parameters############################
+    #Alpha learning rate
+    learning_rate = 0.8
+    lr_schedule = C.learning_parameter_schedule(learning_rate) 
+    learner = C.sgd(z.parameters, lr_schedule)
+    trainer = C.Trainer(z, (loss, eval_error), [learner])
+    
+    minibatch_size = bb+1
+    num_samples_per_sweep = 3500
+    num_sweeps_to_train_with = 1
+    num_minibatches_to_train = (num_samples_per_sweep * num_sweeps_to_train_with) / minibatch_size
+    
+    training_progress_output_freq = 20
+    
+    plotdata = {"epoch":[],"batch":[], "loss":[], "deltaloss":[],"speed":[]}
+    
+    
+    
+    ###########################################################
+    #############Training########################################
+    
+    print('num',num_minibatches_to_train)
+    for i in range(0, int(num_minibatches_to_train)):
+        start = time.time()
+        # Specify the input variables mapping in the model to actual minibatch data for training
+        trainer.train_minibatch({input1 : features, label : labels})
+        batchsize, loss, error = print_training_progress(trainer, i, 
+                                                         training_progress_output_freq, verbose=0)
+        end = time.time()
+    
+        if not (loss == "NA" or error =="NA"):
+            plotdata["epoch"].append(i)
+            plotdata["batch"].append(minibatch_size)
+            if i == 0:
+                plotdata["deltaloss"].append("Nan")
+            else:
+                plotdata["deltaloss"].append(float(plotdata["loss"][-1])-loss)
+            plotdata["loss"].append(loss)
+            plotdata["speed"].append(end-start)
+    
+    
+            #plotdata["error"].append(error)
+            
+    f = open('cntk_data_batchnum_'+str(bb+1)+".txt","w")
+    
+    for i in range(0,len(plotdata["epoch"])):
+        f.write(str(plotdata["epoch"][i])+","+str(plotdata["batch"][i])+","+str(plotdata["loss"][i])+","+str(plotdata["deltaloss"][i])+","+str(plotdata["speed"][i])+"\n")
         
-plotdata["avgloss"] = moving_average(plotdata["loss"])
-plotdata["avgerror"] = moving_average(plotdata["error"])
-
-plt.figure(1)
-plt.subplot(211)
-plt.plot(plotdata["batchsize"], plotdata["avgloss"], 'b--')
-plt.xlabel('Minibatch number')
-plt.ylabel('Loss')
-plt.title('Minibatch run vs. Training loss')
-plt.show()
-
-plt.subplot(212)
-plt.plot(plotdata["batchsize"], plotdata["avgerror"], 'r--')
-plt.xlabel('Minibatch number')
-plt.ylabel('Label Prediction Error')
-plt.title('Minibatch run vs. Label Prediction Error')
-plt.show()
+    f.close()
+       
+#plotdata["avgloss"] = moving_average(plotdata["loss"])
+#plotdata["avgerror"] = moving_average(plotdata["deltaloss"])
+#
+#plt.figure(1)
+#plt.subplot(211)
+#plt.plot(plotdata["batchsize"], plotdata["avgloss"], 'b--')
+#plt.xlabel('Minibatch number')
+#plt.ylabel('Loss')
+#plt.title('Minibatch run vs. Training loss')
+#plt.show()
+#
+#plt.subplot(212)
+#plt.plot(plotdata["batchsize"], plotdata["avgerror"], 'r--')
+#plt.xlabel('Minibatch number')
+#plt.ylabel('Label Prediction Error')
+#plt.title('Minibatch run vs. Label Prediction Error')
+#plt.show()
