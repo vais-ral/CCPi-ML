@@ -9,13 +9,14 @@ import scipy.io as sio
 import numpy as np
 import time
 import matplotlib.pyplot as plt
-
+import torch
+import torch.utils.data
 def loadMATData(file1):
     return sio.loadmat(file1)
 
-def fit(model,optimizer,dataloader,loss_fn,epochs):
+def fit(model,optimizer,dataloader,loss_fn,epochs,batch):
     
-    plot_data = {"Epoch":[],"Loss":[]} 
+    plot_data = {"Epoch":[],"Batch":[],"Loss":[],"DeltaLoss":[],"Speed":[]} 
     
     for t in range(epochs):
         start = time.time()
@@ -30,8 +31,9 @@ def fit(model,optimizer,dataloader,loss_fn,epochs):
             y_pred = model(inputs)
         # Compute and print loss. We pass Tensors containing the predicted and true
         # values of y, and the loss function returns a Tensor containing the
-        # loss.
-            loss = loss_fn(y_pred, label)
+        # loss
+        #torch.LongTensor(torch.max()) takes care of the fact we are using crossEntropy loss function and 
+            loss = loss_fn(y_pred, torch.LongTensor(torch.max(label,1)[1]))
     
             # Before the backward pass, use the optimizer object to zero all of the
         # gradients for the variables it will update (which are the learnable
@@ -56,10 +58,17 @@ def fit(model,optimizer,dataloader,loss_fn,epochs):
         
         epoch_loss = running_loss / 3500.0
         plot_data["Epoch"].append(t+1)
+        plot_data["Batch"].append(batch)
+        if t == 0:
+            plot_data["DeltaLoss"].append("Nan")
+        else:
+            plot_data["DeltaLoss"].append(float(plot_data["Loss"][-1])-epoch_loss)
         plot_data["Loss"].append(epoch_loss)
+        plot_data["Speed"].append(stop-start)
+
         #epoch_acc = running_corrects.double() / i   
         
-        print('Epoch:',str(t+1)+'/'+str(epochs),'Time:',stop-start,'Loss:',epoch_loss)
+        print('Epoch:',str(t+1)+'/'+str(epochs),'Time:',stop-start,'Loss:',(plot_data["Loss"][-1]))
     
     return model,plot_data
     
@@ -81,7 +90,7 @@ def convertLabels(labels,samplesize,out):
     return label
 
 
-def dataSplit(features,labels,trainSp):
+def dataSplit(features,labels,trainSp,batch):
     
     feat_train = features[:int(features.shape[0]*trainSp)]
     labels_train = labels[:int(labels.shape[0]*trainSp)]
@@ -93,13 +102,13 @@ def dataSplit(features,labels,trainSp):
     tensor_y = torch.stack([torch.Tensor(i) for i in labels_train])
     
     my_dataset = torch.utils.data.TensorDataset(tensor_x,tensor_y) # create your datset
-    my_dataloader = torch.utils.data.DataLoader(my_dataset,batch_size=N) # create your dataloader
+    my_dataloader = torch.utils.data.DataLoader(my_dataset,batch_size=batch) # create your dataloader
     
     tensor_x_test = torch.stack([torch.Tensor(i) for i in feat_test]) # transform to torch tensors
     tensor_y_test = torch.stack([torch.Tensor(i) for i in labels_test])
     
     my_dataset_test = torch.utils.data.TensorDataset(tensor_x_test,tensor_y_test) # create your datset
-    my_dataloader_test = torch.utils.data.DataLoader(my_dataset_test,batch_size=N) # create your dataloader
+    my_dataloader_test = torch.utils.data.DataLoader(my_dataset_test,batch_size=batch) # create your dataloader
 
     return my_dataset,my_dataloader,my_dataset_test,my_dataloader_test
 
@@ -108,9 +117,9 @@ def dataSplit(features,labels,trainSp):
 ### N = Batch number , D_in = input dimensions, H = didden layer size ,D_Out = output dimensions
 ##### BATCH COUNTING DOES NOT WORK YET!!!!! In testModel function y_pred outputs a tensor the size of BAtch size if you do torch.max(y_preds,1) you will get a tensor with the prediction for each of the items in the batch
 
-N, D_in, H, D_out = 1, 400, 25, 10
-Epochs = 15
-Learning_rate= 3e-4
+N, D_in, H, D_out = 50, 400, 25, 10
+Epochs = 200
+Learning_rate= 1e-3
 Momentum = 0.9
 
 ###### Input Data, Shuffle, Format into PyTorch Tensor ###########
@@ -130,32 +139,46 @@ labels = convertLabels(labels,labels.shape[0],D_out)
 filter1 = labels == 10
 labels[filter1] = 0.0
 
-my_dataset,my_dataloader,my_dataset_test,my_dataloader_test =  dataSplit(features,labels,0.2)
+for N in range(0,500,10):
+    print('batch',N+1)
+    my_dataset,my_dataloader,my_dataset_test,my_dataloader_test =  dataSplit(features,labels,0.7,N+1)
 ####### Build Network Model ##########
-
-model = torch.nn.Sequential(
-    torch.nn.Linear(D_in, H),
-    torch.nn.ReLU(),
-    torch.nn.Linear(H, D_out),
-)
-
-loss_fn = torch.nn.MSELoss(size_average=False)
-optimizer = torch.optim.SGD(model.parameters(), lr=Learning_rate, momentum=Momentum)
-
-
-###### Train and Test ##########
-
-model, plot_data = fit(model,optimizer,my_dataloader,loss_fn,Epochs)
-
-testModel(model,my_dataloader_test,labels)
-
-plt.plot(plot_data["Epoch"], plot_data["Loss"], 'b-')
-
-plt.xlabel('Epoch')
-
-plt.ylabel('Loss')
-
-plt.title('Epoch vs. Training loss')
-
-plt.show()
+    
+    model = torch.nn.Sequential(
+        torch.nn.Linear(D_in, H),
+        torch.nn.ReLU(),
+        torch.nn.Linear(H, D_out),
+    )
+    
+    loss_fn = torch.nn.CrossEntropyLoss(size_average=False)
+    optimizer = torch.optim.SGD(model.parameters(), lr=Learning_rate, momentum=Momentum)
+    
+    
+    ###### Train and Test ##########
+    
+    model, plot_data = fit(model,optimizer,my_dataloader,loss_fn,Epochs,N+1)
+    
+    #testModel(model,my_dataloader_test,labels)
+    
+    plt.plot(plot_data["Epoch"], plot_data["Loss"], 'b-')
+    
+    plt.xlabel('Epoch')
+    
+    plt.ylabel('Loss')
+    
+    plt.title('Epoch vs. Training loss')
+    
+    plt.show()
+    
+    
+    ########## Data Writing############
+    print(plot_data)
+    f = open('PyTorch_data_batchnum_'+str(N+1)+".txt","w")
+    
+    for i in range(0,len(plot_data["Epoch"])):
+        f.write(str(plot_data["Epoch"][i])+","+str(plot_data["Batch"][i])+","+str(plot_data["Loss"][i])+","+str(plot_data["DeltaLoss"][i])+","+str(plot_data["Speed"][i])+"\n")
+        
+        
+    
+    f.close()
 
