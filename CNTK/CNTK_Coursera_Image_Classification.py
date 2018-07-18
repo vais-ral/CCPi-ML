@@ -168,7 +168,7 @@ for bb in np.arange(0,500,10):
         batchsize, loss, error = print_training_progress(trainer, i, 
                                                          training_progress_output_freq, verbose=0)
         end = time.time()
-        if i % math.celi(num_samples_per_sweep/minibatch_size) == 0:
+        if i % math.ceil(num_samples_per_sweep/minibatch_size) == 0:
             epoch+=1
             if not (loss == "NA" or error =="NA"):
                 plotdata["epoch"].append(epoch)
