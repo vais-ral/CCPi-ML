@@ -68,7 +68,17 @@ def print_training_progress(trainer, mb, frequency, verbose=1):
         
     return mb, training_loss, eval_error
 
-
+def generate_minibatch(features, labels, batchsize):
+     # Create synthetic data using NumPy.
+     
+     #shuffle data
+     ran = np.arange(features.shape[0])
+     np.random.shuffle(ran)
+     feat = features[ran]
+     lab = labels[ran]
+    
+     return feat[:batchsize],lab[:batchsize]
+ 
 #Convert labels from label to CNTK output format, basically an array of 0's with a 1 in the position of the desired label so 9 = [0 0 0 0 0 0 0 0 0 1]
 def convertLabels(labels,samplesize,out):
     label = np.zeros((samplesize,out),dtype=np.float32)
@@ -138,10 +148,10 @@ for bb in np.arange(0,500,10):
     
     minibatch_size = bb+1
     num_samples_per_sweep = 3500
-    num_sweeps_to_train_with = 1
+    num_sweeps_to_train_with = 200
     num_minibatches_to_train = (num_samples_per_sweep * num_sweeps_to_train_with) / minibatch_size
     
-    training_progress_output_freq = 20
+    training_progress_output_freq = 1
     
     plotdata = {"epoch":[],"batch":[], "loss":[], "deltaloss":[],"speed":[]}
     
@@ -153,8 +163,9 @@ for bb in np.arange(0,500,10):
     print('num',num_minibatches_to_train)
     for i in range(0, int(num_minibatches_to_train)):
         start = time.time()
+        train_features, train_labels = generate_minibatch(features,labels, minibatch_size)
         # Specify the input variables mapping in the model to actual minibatch data for training
-        trainer.train_minibatch({input1 : features, label : labels})
+        trainer.train_minibatch({input1 :  train_features, label : train_labels})
         batchsize, loss, error = print_training_progress(trainer, i, 
                                                          training_progress_output_freq, verbose=0)
         end = time.time()
@@ -163,7 +174,7 @@ for bb in np.arange(0,500,10):
             plotdata["epoch"].append(i)
             plotdata["batch"].append(minibatch_size)
             if i == 0:
-                plotdata["deltaloss"].append("Nan")
+                plotdata["deltaloss"].append('Nan')
             else:
                 plotdata["deltaloss"].append(float(plotdata["loss"][-1])-loss)
             plotdata["loss"].append(loss)
