@@ -9,7 +9,7 @@ from __future__ import print_function # Use a function definition from future ve
 from IPython.display import Image
 import matplotlib.pyplot as plt
 import scipy.io as sio
-
+import math
 import numpy as np
 import sys
 import os
@@ -157,6 +157,7 @@ for bb in np.arange(0,500,10):
     #############Training########################################
     
     print('num',num_minibatches_to_train)
+    epoch = 0
     for i in range(0, int(num_minibatches_to_train)):
         start = time.time()
         train_features, train_labels = generate_minibatch(features,labels, minibatch_size)
@@ -167,16 +168,17 @@ for bb in np.arange(0,500,10):
         batchsize, loss, error = print_training_progress(trainer, i, 
                                                          training_progress_output_freq, verbose=0)
         end = time.time()
-    
-        if not (loss == "NA" or error =="NA"):
-            plotdata["epoch"].append(i)
-            plotdata["batch"].append(minibatch_size)
-            if i == 0:
-                plotdata["deltaloss"].append('Nan')
-            else:
-                plotdata["deltaloss"].append(float(plotdata["loss"][-1])-loss)
-            plotdata["loss"].append(loss)
-            plotdata["speed"].append(end-start)
+        if i % math.celi(num_samples_per_sweep/minibatch_size) == 0:
+            epoch+=1
+            if not (loss == "NA" or error =="NA"):
+                plotdata["epoch"].append(epoch)
+                plotdata["batch"].append(minibatch_size)
+                if i == 0:
+                    plotdata["deltaloss"].append('Nan')
+                else:
+                    plotdata["deltaloss"].append(float(plotdata["loss"][-1])-loss)
+                plotdata["loss"].append(loss)
+                plotdata["speed"].append(end-start)
     
     
             #plotdata["error"].append(error)
