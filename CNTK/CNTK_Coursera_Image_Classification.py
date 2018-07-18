@@ -32,6 +32,7 @@ C.cntk_py.set_fixed_random_seed(1)
 def create_modelNN(features):
     with C.layers.default_options(init=C.layers.glorot_uniform(), activation=C.relu):
         h = features
+        print(hidden_layers_dim)
         for _ in range(num_hidden_layers):
             h = C.layers.Dense(hidden_layers_dim)(h)
         last_layer = C.layers.Dense(num_output_classes, activation = None)
@@ -113,13 +114,9 @@ ran = np.arange(features.shape[0])
 np.random.shuffle(ran)
 features = features[ran]
 labels = labels[ran]
-print("Feat",features.shape)
 #Convert to CNTK format
 labels = convertLabels(labels,mysamplesize,num_output_classes)
-print("Label",labels.shape)
 
-plt.imshow(np.reshape(features[0],(20,20)))
-plt.show()
 features = features[:3500]
 labels = labels[:3500]
 
@@ -133,7 +130,6 @@ for bb in np.arange(0,500,10):
     
     #Generate Netowrk model with CNTK layer tempate function
     z = create_modelNN(input1)
-    
     loss = C.cross_entropy_with_softmax(z, label)
     eval_error = C.classification_error(z, label)
     
@@ -141,14 +137,14 @@ for bb in np.arange(0,500,10):
     #########################################################
     #########Learning Parameters############################
     #Alpha learning rate
-    learning_rate = 0.8
+    learning_rate = 0.001
     lr_schedule = C.learning_parameter_schedule(learning_rate) 
     learner = C.sgd(z.parameters, lr_schedule)
     trainer = C.Trainer(z, (loss, eval_error), [learner])
     
     minibatch_size = bb+1
     num_samples_per_sweep = 3500
-    num_sweeps_to_train_with = 200
+    num_sweeps_to_train_with = 100
     num_minibatches_to_train = (num_samples_per_sweep * num_sweeps_to_train_with) / minibatch_size
     
     training_progress_output_freq = 1
