@@ -1,0 +1,86 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Jul 18 11:43:14 2018
+
+@author: zyv57124
+"""
+
+import numpy as np
+import sys
+def findLimitIndex(arr,limit,limitLogic):
+    if limitLogic <0 or limitLogic > 2:
+        print("Invalid logic choice options: 0: <=, 1: >=, 2: ==")
+        sys.exit()
+    else:
+ 
+        if limitLogic == 0:
+            filter1 = arr<=limit
+        elif limitLogic == 1:
+            filter1 = arr>=limit
+        elif limitLogic == 2:
+            filter1 = arr==limit
+
+        if np.any(filter1):
+            return np.where(filter1)[0][0]
+        else:
+            print('Limit of:',limit,', did not find result in array',arr)
+            return 'Stop'
+
+
+def dataLimit(data,limit,column,labels,limitLogic):
+    length = len(data)
+    arr = np.zeros((length,4))
+    del labels[column]
+    
+    for i in range(length):
+
+        index = findLimitIndex(data[i][column],limit,limitLogic)
+        if index != 'Stop':
+            columnSearch = np.arange(0,5,1)
+            columnSearch = np.delete(columnSearch,np.where(columnSearch==column)[0][0],0)  
+            itter = 0
+            
+            for n in columnSearch:
+                arr[i][itter] = data[i][n][index]
+                itter +=1
+        else:
+            break
+
+    return np.transpose(arr), labels
+
+#fileCNTK = r'C:\Users\lhe39759\Documents\GitHub\CCPi-ML\CNTK\cntk_data_batchnum_'
+fileTF = r'C:\Users\zyv57124\Documents\GitHub\CCPi-ML\TensorFlow\TF_loss_data_batchnum_'
+
+cntk_data = []
+pytorch_data = []
+TF_data = []
+Keras_data = []
+
+for file in range(0,500,10):
+    
+   # data_cntk = np.genfromtxt(fileCNTK+str(file+1)+'.txt',delimiter=',')    
+    data_pytorch = np.genfromtxt(fileTF+str(file+1)+'.txt',delimiter=',')
+    
+    #cntk_data.append(np.transpose(data_cntk))
+    TF_data.append(np.transpose(data_pytorch))
+    
+    #
+    
+print(TF_data)
+plotx = 1
+ploty = 0
+limit = 100
+columnSearch = 0
+limitLogic = 2
+logic = ['<=','>=','=']
+columnLabels = ['Epochs','Loss','Batch Size','Time','Delta Loss']
+Title = "For " + columnLabels[columnSearch] + ' ' + logic[limitLogic] + ' ' + str(limit)+' , '
+
+dl_pytorch, columnLabels = dataLimit(TF_data,limit,columnSearch,columnLabels,2)
+plt.title(Title+columnLabels[ploty] + ' Vs ' + columnLabels[plotx])
+
+print(columnLabels,dl_pytorch)
+plt.scatter(dl_pytorch[plotx],dl_pytorch[ploty])
+plt.xlabel(columnLabels[plotx])
+plt.ylabel(columnLabels[ploty])
+plt.show()

@@ -71,7 +71,7 @@ model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accur
 
 #Fit model on training data------------------------------------------------
 
-history = model.fit(training_features, training_labels, batch_size=32, nb_epoch=100, verbose=1, callbacks=[history])
+history = model.fit(training_features, training_labels, batch_size=32, nb_epoch=100, verbose=2)
 print (history.history.keys())
 print (history.history['loss'])
 
@@ -86,6 +86,7 @@ plt.show()
 #---------------------------------------------------------------------------
 
 score = model.evaluate(test_features, test_labels, verbose=2)  #Testing
+print (score)
 
 #Plot of loss against epoch using Keras features ---------------------------
 plt.plot(history.history['acc'])
