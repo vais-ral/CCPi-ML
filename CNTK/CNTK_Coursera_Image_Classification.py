@@ -142,7 +142,7 @@ for bb in np.arange(0,500,10):
     learner = C.sgd(z.parameters, lr_schedule)
     trainer = C.Trainer(z, (loss, eval_error), [learner])
     
-    minibatch_size = bb+1
+    minibatch_size = 50
     num_samples_per_sweep = 3500
     num_sweeps_to_train_with = 100
     num_minibatches_to_train = (num_samples_per_sweep * num_sweeps_to_train_with) / minibatch_size
@@ -193,13 +193,13 @@ for bb in np.arange(0,500,10):
 #plotdata["avgloss"] = moving_average(plotdata["loss"])
 #plotdata["avgerror"] = moving_average(plotdata["deltaloss"])
 #
-#plt.figure(1)
-#plt.subplot(211)
-#plt.plot(plotdata["batchsize"], plotdata["avgloss"], 'b--')
-#plt.xlabel('Minibatch number')
-#plt.ylabel('Loss')
-#plt.title('Minibatch run vs. Training loss')
-#plt.show()
+    plt.figure(1)
+    plt.subplot(211)
+    plt.plot(plotdata["epoch"], plotdata["loss"], 'b--')
+    plt.xlabel('Minibatch number')
+    plt.ylabel('Loss')
+    plt.title('Minibatch run vs. Training loss')
+    plt.show()
 #
 #plt.subplot(212)
 #plt.plot(plotdata["batchsize"], plotdata["avgerror"], 'r--')
