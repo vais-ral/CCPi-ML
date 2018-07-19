@@ -139,7 +139,7 @@ labels = convertLabels(labels,labels.shape[0],D_out)
 filter1 = labels == 10
 labels[filter1] = 0.0
 
-for N in range(10,500,10):
+for N in range(0,500,10):
     print('batch',N+1)
     train_dataset,train_dataloader,test_dataset,test_dataloader = dataSplit(features,labels,0.7,N+1)
 ####### Build Network Model ##########
@@ -158,20 +158,20 @@ for N in range(10,500,10):
     model, plot_data = fit(model,optimizer,train_dataloader,loss_fn,Epochs,N+1)
     
     #testModel(model,my_dataloader_test,labels)
-    
-    plt.plot(plot_data["Epoch"], plot_data["Loss"], 'b-')
-    
-    plt.xlabel('Epoch')
-    
-    plt.ylabel('Loss')
-    
-    plt.title('Epoch vs. Training loss')
-    
-    plt.show()
-    
-    
+#    
+#    plt.plot(plot_data["Epoch"], plot_data["Loss"], 'b-')
+#    
+#    plt.xlabel('Epoch')
+#    
+#    plt.ylabel('Loss')
+#    
+#    plt.title('Epoch vs. Training loss')
+#    
+#    plt.show()
+#    
+#    
     ########## Data Writing############
-    f = open('PyTorch_data_batchnum_'+str(N+1)+".txt","w")
+    f = open('Data/PyTorch_data_batchnum_'+str(N+1)+".txt","w")
     
     for i in range(0,len(plot_data["Epoch"])):
         f.write(str(plot_data["Epoch"][i])+","+str(plot_data["Batch"][i])+","+str(plot_data["Loss"][i])+","+str(plot_data["DeltaLoss"][i])+","+str(plot_data["Speed"][i])+"\n")

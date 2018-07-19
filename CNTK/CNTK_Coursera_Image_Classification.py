@@ -161,8 +161,8 @@ for bb in np.arange(0,500,10):
     for i in range(0, int(num_minibatches_to_train)):
         start = time.time()
         train_features, train_labels = generate_minibatch(features,labels, minibatch_size)
-        if i % 50 == 0:
-            print('MiniBatch',i)
+#        if i % 50 == 0:
+#            print('MiniBatch',i)
         # Specify the input variables mapping in the model to actual minibatch data for training
         trainer.train_minibatch({input1 :  train_features, label : train_labels})
         batchsize, loss, error = print_training_progress(trainer, i, 
