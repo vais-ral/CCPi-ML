@@ -89,7 +89,7 @@ for i in np.arange(0,500, 10):
 
     #Store eoch number and loss values in .txt file
     loss_data = (history.history['loss'])
-    f = open("loss_data_batchnum_"+str(i+1)+".txt","w")
+    f = open("KER_loss_data_batchnum_"+str(i+1)+".txt","w")
     for xx in range(1,len(loss_data)+1):
         if xx==1:
             delta_loss = 'Nan'
