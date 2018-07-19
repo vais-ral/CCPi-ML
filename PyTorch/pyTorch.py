@@ -22,6 +22,7 @@ def fit(model,optimizer,dataloader,loss_fn,epochs,batch):
         start = time.time()
         running_loss = 0.0
         #running_corrects = 0.0
+        count = 0
         for i, data in enumerate(dataloader,0):
             inputs,label = data
 
@@ -52,7 +53,7 @@ def fit(model,optimizer,dataloader,loss_fn,epochs,batch):
             optimizer.step()
             _,prediction = torch.max(y_pred,1)
             running_loss += loss.item() * inputs.size(0)
-
+            count+=1
             #running_corrects += torch.sum(prediction == label.data)
         stop = time.time()
         epoch_loss = running_loss / 3500.0
@@ -67,7 +68,7 @@ def fit(model,optimizer,dataloader,loss_fn,epochs,batch):
 
         #epoch_acc = running_corrects.double() / i   
         
-        #print('Epoch:',str(t+1)+'/'+str(epochs),'Time:',stop-start,'Loss:',(plot_data["Loss"][-1]))
+        #print('Epoch:',str(t+1)+'/'+str(epochs),'Time:',stop-start,'Loss:',(plot_data["Loss"][-1]),count,batch)
     
     return model,plot_data
     
@@ -116,10 +117,10 @@ def dataSplit(features,labels,trainSp,batch):
 ### N = Batch number , D_in = input dimensions, H = didden layer size ,D_Out = output dimensions
 ##### BATCH COUNTING DOES NOT WORK YET!!!!! In testModel function y_pred outputs a tensor the size of BAtch size if you do torch.max(y_preds,1) you will get a tensor with the prediction for each of the items in the batch
 
-N, D_in, H, D_out = 50, 400, 25, 10
+D_in, H, D_out =  400, 25, 10
 Epochs = 100
-Learning_rate=10
-#Momentum = 0.9
+Learning_rate=0.003
+Momentum = 0.9
 
 ###### Input Data, Shuffle, Format into PyTorch Tensor ###########
 
@@ -138,7 +139,7 @@ labels = convertLabels(labels,labels.shape[0],D_out)
 filter1 = labels == 10
 labels[filter1] = 0.0
 
-for N in range(0,500,10):
+for N in range(10,500,10):
     print('batch',N+1)
     train_dataset,train_dataloader,test_dataset,test_dataloader = dataSplit(features,labels,0.7,N+1)
 ####### Build Network Model ##########
@@ -146,16 +147,15 @@ for N in range(0,500,10):
         torch.nn.Linear(D_in, H),
         torch.nn.ReLU(),
         torch.nn.Linear(H, D_out),
-        torch.nn.ReLU()
 
     )
     loss_fn = torch.nn.CrossEntropyLoss(size_average=False)
-    optimizer = torch.optim.SGD(model.parameters(), lr=Learning_rate)
+    optimizer = torch.optim.SGD(model.parameters(), lr=Learning_rate,momentum=Momentum)
     
     
     ###### Train and Test ##########
     
-    model, plot_data = fit(model,optimizer,test_dataloader,loss_fn,Epochs,N+1)
+    model, plot_data = fit(model,optimizer,train_dataloader,loss_fn,Epochs,N+1)
     
     #testModel(model,my_dataloader_test,labels)
     

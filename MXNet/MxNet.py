@@ -20,11 +20,12 @@ layer.initialize()
 
 net = nn.Sequential()
 
+
 with net.name_scope():
-	net.add(
-	
-	nn.Dense(400,activation="relu"),
-	nn.Dense(25,activation="relu"),
-	nn.Dense(10)
-	
-	)
+    net.add(gluon.nn.Dense(400, activation="relu"))
+    net.add(gluon.nn.Dense(25, activation="relu"))
+    net.add(gluon.nn.Dense(10))
+    
+net.collect_params().initialize(mx.init.Normal(sigma=.1), ctx=model_ctx)
+softmax_cross_entropy = gluon.loss.SoftmaxCrossEntropyLoss()
+trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': .01})
