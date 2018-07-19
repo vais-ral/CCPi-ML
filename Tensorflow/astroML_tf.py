@@ -28,7 +28,6 @@ from astroML.utils import split_samples
 def convertLabels(labels,samplesize,out):
     label = np.zeros((samplesize,out),dtype=np.float32)
     for i in range(0,len(labels)):
-            assi = 0
         if labels[i] == 0:
             label[i,:] = np.array([0,1])
         else:
