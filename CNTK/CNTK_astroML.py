@@ -82,15 +82,6 @@ def convertLabels(labels,samplesize,out):
     return label
 
 
-###########################################################
-    
-##################Settings##############################
-
-input_dim = 4
-num_output_classes = 1
-num_hidden_layers = 1
-hidden_layers_dim = 8
-mysamplesize = 69855
 
 
 #############################################################
@@ -98,16 +89,40 @@ mysamplesize = 69855
 #############Data Loading & Conversion######################
 
 X, y = fetch_rrlyrae_combined()
+
+filter1 = X[:,1] < 1
+
+X[filter1]
 #X = X[:, [1, 0, 2, 3]]  # rearrange columns for better 1-color results
 X = X[:, [1, 0]]  # rearrange columns for better 1-color results
+test = X[:10,:]
+filter1 = X[:,0]>0.38
+print(test[filter1,:])
+
 X = np.insert(X,X.shape[1],np.multiply(X[:,[0]],X[:,[0]]).flatten(),axis=1)
 X = np.insert(X,X.shape[1],np.multiply(X[:,[1]],X[:,[1]]).flatten(),axis=1)
 
-(X_train, X_test), (y_train, y_test) = split_samples(X, y, [1, 0.0],
+
+
+(X_train, X_test), (y_train, y_test) = split_samples(X, y, [0.3, 0.7],
                                                      random_state=0)
 
 features = X_train
 labels =np.matrix(y_train).T
+
+
+###########################################################
+    
+##################Settings##############################
+
+input_dim = 4
+num_output_classes = 1
+num_hidden_layers = 1
+hidden_layers_dim = 1
+mysamplesize = X_train.shape[0]
+print('s',mysamplesize)
+
+
 
 
 
@@ -115,6 +130,7 @@ labels =np.matrix(y_train).T
 N_tot = len(y)
 #Total assignments of 0 (Classification = true)
 N_st = np.sum(y == 0)
+print(N_tot-N_st)
 #Total assignments of 1 (Classification = false)
 N_rr = N_tot - N_st
 #Number of train labels
@@ -129,10 +145,9 @@ fig = plt.figure(figsize=(5, 2.5))
 fig.subplots_adjust(bottom=0.15, top=0.95, hspace=0.0,
                     left=0.1, right=0.95, wspace=0.2)
 
-
 ax = fig.add_subplot(111)
 #Scatter plot of original data with colours according to original labels
-im = ax.scatter(X[-N_plot:, 1], X[-N_plot:, 0], c=y[-N_plot:],
+im = ax.scatter(X[:, 1], X[:, 0], c=y[:],
                 s=4, lw=0, cmap=plt.cm.binary, zorder=2)
 im.set_clim(-0.5, 1)
 
@@ -154,14 +169,14 @@ eval_error = C.classification_error(z, label)
 #########################################################
 #########Learning Parameters############################
 #Alpha learning rate
-learning_rate = 0.02
+learning_rate = 2000
 lr_schedule = C.learning_parameter_schedule(learning_rate) 
 learner = C.sgd(z.parameters, lr_schedule)
 trainer = C.Trainer(z, (loss, eval_error), [learner])
 
-minibatch_size = 69855
-num_samples_per_sweep = 69855
-num_sweeps_to_train_with = 10000
+minibatch_size = 59
+num_samples_per_sweep = mysamplesize
+num_sweeps_to_train_with = 10
 num_minibatches_to_train = (num_samples_per_sweep * num_sweeps_to_train_with) / minibatch_size
 
 training_progress_output_freq = 20
