@@ -52,11 +52,11 @@ def fit(model,optimizer,dataloader,loss_fn,epochs,batch):
         
             optimizer.step()
             _,prediction = torch.max(y_pred,1)
-            running_loss += loss.item() * inputs.size(0)
+            running_loss += loss.item() 
             count+=1
             #running_corrects += torch.sum(prediction == label.data)
         stop = time.time()
-        epoch_loss = running_loss / 3500.0
+        epoch_loss = running_loss / len(dataloader)
         plot_data["Epoch"].append(t+1)
         plot_data["Batch"].append(batch)
         if t == 0:
@@ -119,7 +119,7 @@ def dataSplit(features,labels,trainSp,batch):
 
 D_in, H, D_out =  400, 25, 10
 Epochs = 100
-Learning_rate=0.003
+Learning_rate=0.001
 Momentum = 0.9
 
 ###### Input Data, Shuffle, Format into PyTorch Tensor ###########
@@ -158,7 +158,8 @@ for N in range(0,500,10):
     model, plot_data = fit(model,optimizer,train_dataloader,loss_fn,Epochs,N+1)
     
     #testModel(model,my_dataloader_test,labels)
-#    
+#
+#    print(plot_data["Loss"][len(plot_data["Loss"])-1])
 #    plt.plot(plot_data["Epoch"], plot_data["Loss"], 'b-')
 #    
 #    plt.xlabel('Epoch')
