@@ -13,7 +13,10 @@ import tensorflow as tf
 from tensorflow import keras
 import math
 from tensorflow.keras.metrics import categorical_accuracy
-
+import sys
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
 #from astroML.datasets import fetch_rrlyrae_combined
 from astroML.utils import split_samples
 #from astroML.utils import completeness_contamination
@@ -61,93 +64,100 @@ def predictionMap(xlim,ylim):
     
     for x in np.arange(xlim[0],xlim[1],0.001):
         for y in np.arange(ylim[0],ylim[1],0.001):
-            mesh.append([x,y,x*x,y*y])
+            mesh.append([x,y,0,0])
             
     return (np.array(mesh))
 #%%
 X = np.loadtxt('AstroML_Data.txt',dtype=float)
 y =  np.loadtxt('AstroML_Labels.txt',dtype=float)
+
+print(np.amin(X[:,[2]]))
 X = X[:, [1, 0]]  # rearrange columns for better 1-color results
 
-#X = np.insert(X,X.shape[1],np.multiply(X[:,[0]],X[:,[0]]).flatten(),axis=1)
-#X = np.insert(X,X.shape[1],np.multiply(X[:,[1]],X[:,[1]]).flatten(),axis=1)
+## Shuffle Data
+ran = np.arange(X.shape[0])
+np.random.shuffle(ran)
+X= X[ran]
+y= y[ran]
 
 X_train,y_train = reBalanceData(X,y)
+#X_train, y_train = X, y
+
 filter1=y_train==0
 y_train[filter1] = 0
 filter1=y_train==1
 y_train[filter1] = 1
 
-features = X_train
-labels = y_train
-
-N_tot = len(y)
+N_tot = y_train.shape[0]
 #Total assignments of 0 (Classification = true)
-N_st = np.sum(y == 0)
+N_st = np.sum(y_train == 0)
 #Total assignments of 1 (Classification = false)
 N_rr = N_tot - N_st
+
 N_plot = 5000 + N_rr
-fig = plt.figure(figsize=(5, 2.5))
+
+######## Plot Feature Data #########################
+
+fig = plt.figure(figsize=(15, 15))
 #Plot Size
-fig.subplots_adjust(bottom=0.15, top=0.95, hspace=0.0,
-                    left=0.1, right=0.95, wspace=0.2)
-ax = fig.add_subplot(111)
+
+ax = fig.add_subplot(221)
 #Scatter plot of original data with colours according to original labels
-im = ax.scatter(features[:, 1], features[:, 0], c=y_train,
+im = ax.scatter(X[:, 1], X[:, 0], c=y,
                 s=4, lw=0, cmap=plt.cm.binary, zorder=2)
 im.set_clim(-0.5, 1)
-plt.show()
+
+ax.set_xlabel('$u-g$')
+ax.set_ylabel('$g-r$')
+
 #%%
+
 ###########################################################
 ############Netowork Building##############################
-#Define input and output dimensions
-#model = keras.Sequential([
-#        keras.layers.Dense(2, activation=tf.nn.sigmoid),
-#        keras.layers.Dense(4, activation=tf.nn.sigmoid),
-#        keras.layers.Dense(2, activation=tf.nn.sigmoid),
-#        keras.layers.Dense(1, activation=tf.nn.sigmoid)
-#
-#])
-#    
+
+class_weight = {0:1.,1:((N_tot/N_rr)*1.2)}
 
 model = keras.Sequential()
-model.add(keras.layers.Dense(15, input_dim=2, kernel_initializer='normal', activation='tanh'))
-
+model.add(keras.layers.Dense(6, input_dim=2, kernel_initializer='normal', activation='sigmoid'))
+model.add(keras.layers.Dense(15,  kernel_initializer='normal', activation='sigmoid'))
 model.add(keras.layers.Dense(1, kernel_initializer='normal', activation='sigmoid'))
 
-	# Compile model
-#loss_fn = tf.losses.sigmoid_cross_entropy(multi_class_labels=[X_train.shape[0],2],logits=[X_train.shape[0],2])
-#model.compile(optimizer=tf.train.AdamOptimizer(learning_rate=0.3), loss='binary_crossentropy', metrics=['binary_accuracy', 'categorical_accuracy'])
-model.compile(loss='binary_crossentropy', optimizer=tf.train.AdamOptimizer(learning_rate=0.3), metrics=['accuracy'])
+model.compile(optimizer=tf.train.AdamOptimizer(learning_rate=0.03), loss='binary_crossentropy', metrics=['binary_accuracy', 'categorical_accuracy'])
+#model.compile(loss='binary_crossentropy', optimizer=tf.train.AdamOptimizer(learning_rate=0.3), metrics=['accuracy'])
 
-model.fit(features, labels, batch_size=500,epochs=15)
+history = model.fit(X_train, y_train, batch_size=1500,epochs=100, verbose=2)
 
+
+loss_data = history.history['loss']
+epoch_data = np.arange(0,len(loss_data))
+ax_loss = fig.add_subplot(222)
+im_loss = ax_loss.plot(epoch_data,loss_data,'k-')
 # evaluate the model
-scores = model.evaluate(features, labels)
+scores = model.evaluate(X_train, y_train)
+
 print("\n%s: %.2f%%" % (model.metrics_names[1], scores[1]*100))
+
 #%%
 xlim = (0.7, 1.35)
 ylim = (-0.15, 0.4)
-predictions = np.transpose(model.predict(features))
-fig = plt.figure(figsize=(5, 2.5))
-#Plot Size
-fig.subplots_adjust(bottom=0.15, top=0.95, hspace=0.0,
-                    left=0.1, right=0.95, wspace=0.2)
-ax = fig.add_subplot(111)
-#Scatter plot of original data with colours according to original labels
-im = ax.scatter(features[:, 1], features[:, 0], c=predictions[0],
-                s=4, lw=0, cmap=plt.cm.binary, zorder=2)
-im.set_clim(-0.5, 1)
-plt.show()
+#zlim = (np.amin(X[:,[2]]),np.amax(X[:,[2]]))
+#glim = (np.amin(X[:,[3]]),np.amax(X[:,[3]]))
+
+predictions = np.transpose(model.predict(X_train))
+
+ax_heat = fig.add_subplot(223)
+im_heat = ax_heat.scatter(X_train[:, 1], X_train[:, 0], c=predictions[0], s=4, lw=0, cmap=plt.cm.binary, zorder=2)
+im_heat.set_clim(-0.5, 1)
 
 test = predictionMap(xlim,ylim)
-print(test)
+
 xshape = int((xlim[1]-xlim[0])*1000)+1
 yshape = int((ylim[1]-ylim[0])*1000)
 
-predictions = np.transpose(model.predict(test[:,[1,0]]))
-
-plt.imshow(np.transpose(np.reshape(predictions,(xshape,yshape))),origin='lower')
+predictions =(model.predict(test[:,[1,0]]))
+#%%
+print(predictions.shape)
+plt.imshow(np.transpose(np.reshape(predictions[:,0],(xshape,yshape))),origin='lower')
 plt.colorbar()
 
 plt.show()
@@ -155,18 +165,17 @@ print(predictions[predictions<0.2].shape,predictions[predictions>0.8].shape)
 
 #%%
 
-fig = plt.figure(figsize=(5, 2.5))
-#Plot Size
-fig.subplots_adjust(bottom=0.15, top=0.95, hspace=0.0,
-                    left=0.1, right=0.95, wspace=0.2)
-ax = fig.add_subplot(111)
-#Scatter plot of original data with colours according to original labels
-#im = ax.scatter(test[:, 0], test[:, 1], c=predictions[0],
-               # s=4, lw=0, cmap=plt.cm.OrRd, zorder=2)
-im = ax.scatter(features[:, 1], features[:, 0], c=y_train,
-                s=4, lw=0, cmap=plt.cm.binary, zorder=2)
-ax.contour(np.reshape(test[:, 0],(xshape,yshape)), np.reshape(test[:, 1],(xshape,yshape)), np.reshape(predictions,(xshape,yshape)))
+ac_cont = fig.add_subplot(224)
+
+im_cont = ac_cont.scatter(X[:, 1],X[:, 0], c=y,s=4, lw=0, cmap=plt.cm.binary, zorder=2)
+ac_cont.contour(np.reshape(test[:, 0],(xshape,yshape)), np.reshape(test[:, 1],(xshape,yshape)), np.reshape(predictions,(xshape,yshape)),cmap=plt.cm.binary)
 im.set_clim(-0.5, 1)
+ac_cont.set_xlabel('$u-g$')
+ac_cont.set_ylabel('$g-r$')
+
+
+
+
 
 plt.show()
 

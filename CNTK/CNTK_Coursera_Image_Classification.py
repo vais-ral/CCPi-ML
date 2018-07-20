@@ -165,7 +165,7 @@ for bb in np.arange(0,500,10):
 #            print('MiniBatch',i)
         # Specify the input variables mapping in the model to actual minibatch data for training
         trainer.train_minibatch({input1 :  train_features, label : train_labels})
-        batchsize, loss, error = print_training_progress(trainer, i, 
+        batchsize, loss, error = print_training_progress(trainer, epoch, 
                                                          training_progress_output_freq, verbose=0)
         end = time.time()
         if i % math.ceil(num_samples_per_sweep/minibatch_size) == 0:
@@ -185,14 +185,15 @@ for bb in np.arange(0,500,10):
             
     f = open('cntk_data_batchnum_'+str(bb+1)+".txt","w")
     
-    for i in range(0,len(plotdata["epoch"])):
-        f.write(str(plotdata["epoch"][i])+","+str(plotdata["batch"][i])+","+str(plotdata["loss"][i])+","+str(plotdata["deltaloss"][i])+","+str(plotdata["speed"][i])+"\n")
-        
-    f.close()
+#    for i in range(0,len(plotdata["epoch"])):
+#        f.write(str(plotdata["epoch"][i])+","+str(plotdata["batch"][i])+","+str(plotdata["loss"][i])+","+str(plotdata["deltaloss"][i])+","+str(plotdata["speed"][i])+"\n")
+#        
+#    f.close()
        
 #plotdata["avgloss"] = moving_average(plotdata["loss"])
 #plotdata["avgerror"] = moving_average(plotdata["deltaloss"])
 #
+    print(plotdata["loss"][len(plotdata["loss"])-1])
     plt.figure(1)
     plt.subplot(211)
     plt.plot(plotdata["epoch"], plotdata["loss"], 'b--')
