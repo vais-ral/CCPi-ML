@@ -32,6 +32,17 @@ class TimingCallback(keras.callbacks.Callback):
     self.starttime=time()
   def on_epoch_end(self, epoch, logs={}):
     self.logs.append(time()-self.starttime)
+    
+#############Data Loading & Conversion######################
+def predictionMap(xlim,ylim):    
+    mesh = []
+    
+    for x in np.arange(xlim[0],xlim[1],0.001):
+        for y in np.arange(ylim[0],ylim[1],0.001):
+            mesh.append([x,y])
+            
+    return (np.array(mesh))
+
 
 BS = 10   #Set batch size
 EP = 4   #Set epochs
@@ -59,8 +70,6 @@ plt.show()
 
 X_train, X_test,y_train, y_test = train_test_split(Data_Astro, Labels_Astro,test_size=0.2, shuffle=True)
 
-
-
 model = Sequential()
 model.add(Dense(8, input_dim=2
                 , init='uniform', activation='sigmoid'))
@@ -78,10 +87,19 @@ a = np.transpose(model.predict(X_test))
 
 print (a)
 
+xlim = (0.7, 1.35)
+ylim = (-0.15, 0.4)
 
+mesh = predictionMap(xlim,ylim)   #makes mesh array
+xshape = int((xlim[1]-xlim[0])*1000)+1
+yshape = int((ylim[1]-ylim[0])*1000)
+predictions = model.predict(mesh[:,[1,0]])  #classifies points in the mesh 1 or 0
+#%%
 fig = plt.figure(figsize=(5, 2.5))
 fig.subplots_adjust(bottom=0.15, top=0.95, hspace=0.0, left=0.1, right=0.95, wspace=0.2)
 ax = fig.add_subplot(1, 1, 1)
 im=ax.scatter(X_test[:, 1], X_test[:, 0], c=a[0], s=4, lw=0, cmap=plt.cm.binary, zorder=2)
 im.set_clim(-0.5, 1)
+ax.contour(np.reshape(mesh[:,0], (xshape, yshape)), np.reshape(mesh[:,1],(xshape,yshape)), np.reshape(predictions,(xshape,yshape)), cmap=plt.cm.binary,lw=2)
 plt.show()
+
