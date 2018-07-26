@@ -6,7 +6,6 @@ import keras
 import math
 from keras.metrics import categorical_accuracy
 from matplotlib.animation import FuncAnimation
-from astroML.utils import completeness_contamination
 
 #Convert labels from label to CNTK output format, basically an array of 0's with a 1 in the position of the desired label so 9 = [0 0 0 0 0 0 0 0 0 1]
 def convertLabels(labels,samplesize,out):
@@ -99,11 +98,14 @@ ax.set_ylabel('$g-r$')
 class_weight = {0:1.,1:((N_tot/N_rr)*1.2)}
 
 model = keras.Sequential()
-model.add(keras.layers.Dense(6, input_dim=2, kernel_initializer='normal', activation='sigmoid'))
-model.add(keras.layers.Dense(35,  kernel_initializer='normal', activation='sigmoid'))
-#model.add(keras.layers.Dense(35,  kernel_initializer='normal', activation='tanh'))
+#model.add(keras.layers.Conv1D(2, 2, input_dim=2,strides=1, padding='valid', data_format='channels_last', dilation_rate=1, activation=None, use_bias=True, kernel_initializer='glorot_uniform', bias_initializer='zeros', kernel_regularizer=None, bias_regularizer=None, activity_regularizer=None, kernel_constraint=None, bias_constraint=None))
+#model.add(keras.layers.MaxPooling1D(pool_size=10))
 #model.add(keras.layers.Dropout(0.25))
-
+#model.add(keras.layers.Dense(6, input_dim=2, kernel_initializer='normal', activation='tanh'))
+#model.add(keras.layers.Dense(35,  kernel_initializer='normal', activation='tanh'))
+model.add(keras.layers.Conv1D(6, 1, input_shape=(X_train.shape[0],X_train.shape[1],1) input_dim=2,strides=1, padding='valid', data_format='channels_first', dilation_rate=1, activation=None, use_bias=True, kernel_initializer='glorot_uniform', bias_initializer='zeros', kernel_regularizer=None, bias_regularizer=None, activity_regularizer=None, kernel_constraint=None, bias_constraint=None))
+model.add(keras.layers.MaxPooling1D(pool_size=10))
+model.add(keras.layers.Dropout(0.25))
 model.add(keras.layers.Dense(1, kernel_initializer='normal', activation='sigmoid'))
 
 model.compile(optimizer=tf.train.AdamOptimizer(learning_rate=0.01), loss='binary_crossentropy', metrics=['binary_accuracy', 'categorical_accuracy'])
@@ -113,7 +115,7 @@ history = model.fit(X_train, y_train, batch_size=1500,epochs=100, verbose=2)
 
 ######Loss Plotting################
 loss_data = history.history['loss']
-epoch_data = np.arange(0,len((loss_data)))
+epoch_data = np.arange(0,len(loss_data))
 
 ax_loss = fig.add_subplot(222)
 im_loss = ax_loss.plot(epoch_data,loss_data,'k-')
@@ -122,13 +124,12 @@ ax_loss.set_ylabel('Loss')
 ##############Evaluate the model ###################
 scores = model.evaluate(X_test, y_test)
 print("\n%s: %.2f%%" % (model.metrics_names[1], scores[1]*100))
-#predict = np.round_(model.predict(X_test),decimals=0)
-#
-#print(predict,X_test.shape,predict[predict<0.2].shape,predict.shape)
-#completeness, contamination = completeness_contamination(predict,y_test)
-#
-#print("completeness", completeness)
-#print("contamination", contamination)
+
+
+#%%
+
+
+
 
 #%%
 
@@ -151,7 +152,7 @@ ax_heat = fig.add_subplot(223)
 
 im_heat = ax_heat.imshow(np.transpose(np.reshape(predictions[:,0],(xshape,yshape))),origin='lower',extent=[xlim[0],xlim[1],ylim[0],ylim[1]])
 cb = fig.colorbar(im_heat, ax=ax_heat)
-cb.set_label('Classification Probability of Variable Main Sequence Stars.')
+cb.set_label('Classification Probability of Variable Main Sequence Stars',fontsize=8)
 ax_heat.set_xlabel('$u-g$')
 ax_heat.set_ylabel('$g-r$')
 print(predictions[predictions<0.2].shape,predictions[predictions>0.8].shape)
@@ -165,7 +166,7 @@ ac_cont.contour(np.reshape(test[:, 0],(xshape,yshape)), np.reshape(test[:, 1],(x
 im_cont.set_clim(-0.5, 1)
 ac_cont.set_xlabel('$u-g$')
 ac_cont.set_ylabel('$g-r$')
-fig.suptitle("Epochs=100 Batch Size = 1500, Learning Rate = 0.01 HiddenLayers: 6(activation = sigmoid) 1(activation = sigmoid). "+"\n%s: %.2f%%" % (model.metrics_names[1], scores[1]*100),fontsize=22,y=1.05)
+
 plt.show()
 
 
