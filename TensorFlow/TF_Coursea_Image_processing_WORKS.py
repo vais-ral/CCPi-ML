@@ -6,7 +6,7 @@ Created on Fri Jul 13 10:57:52 2018
 """
 import scipy.io as sio
 import tensorflow as tf
-from tensorflow import keras
+import keras
 import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt

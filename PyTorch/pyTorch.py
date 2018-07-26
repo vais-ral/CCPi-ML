@@ -25,7 +25,6 @@ def fit(model,optimizer,dataloader,loss_fn,epochs,batch):
         count = 0
         for i, data in enumerate(dataloader,0):
             inputs,label = data
-
         # Forward pass: compute predicted y by passing x to the model. Module objects
         # override the __call__ operator so you can call them like functions. When
         # doing so you pass a Tensor of input data to the Module and it produces
@@ -118,8 +117,8 @@ def dataSplit(features,labels,trainSp,batch):
 ##### BATCH COUNTING DOES NOT WORK YET!!!!! In testModel function y_pred outputs a tensor the size of BAtch size if you do torch.max(y_preds,1) you will get a tensor with the prediction for each of the items in the batch
 
 D_in, H, D_out =  400, 25, 10
-Epochs = 100
-Learning_rate=0.001
+Epochs = 500
+Learning_rate=0.01
 Momentum = 0.9
 
 ###### Input Data, Shuffle, Format into PyTorch Tensor ###########
@@ -140,8 +139,11 @@ filter1 = labels == 10
 labels[filter1] = 0.0
 
 for N in range(0,500,10):
-    print('batch',N+1)
-    train_dataset,train_dataloader,test_dataset,test_dataloader = dataSplit(features,labels,0.7,N+1)
+    if N == 0:
+        N=1
+        
+    print('batch',N)
+    train_dataset,train_dataloader,test_dataset,test_dataloader = dataSplit(features,labels,0.7,N)
 ####### Build Network Model ##########
     model = torch.nn.Sequential(
         torch.nn.Linear(D_in, H),
@@ -149,26 +151,26 @@ for N in range(0,500,10):
         torch.nn.Linear(H, D_out),
 
     )
-    loss_fn = torch.nn.CrossEntropyLoss(size_average=False)
-    optimizer = torch.optim.SGD(model.parameters(), lr=Learning_rate,momentum=Momentum)
+    loss_fn = torch.nn.CrossEntropyLoss()
+    optimizer = torch.optim.SGD(model.parameters(), lr=Learning_rate)
     
     
     ###### Train and Test ##########
     
-    model, plot_data = fit(model,optimizer,train_dataloader,loss_fn,Epochs,N+1)
+    model, plot_data = fit(model,optimizer,train_dataloader,loss_fn,Epochs,N)
     
     #testModel(model,my_dataloader_test,labels)
 #
-#    print(plot_data["Loss"][len(plot_data["Loss"])-1])
-#    plt.plot(plot_data["Epoch"], plot_data["Loss"], 'b-')
-#    
-#    plt.xlabel('Epoch')
-#    
-#    plt.ylabel('Loss')
-#    
-#    plt.title('Epoch vs. Training loss')
-#    
-#    plt.show()
+    print(plot_data["Loss"][len(plot_data["Loss"])-1])
+    plt.plot(plot_data["Epoch"], plot_data["Loss"], 'b-')
+    
+    plt.xlabel('Epoch')
+    
+    plt.ylabel('Loss')
+    
+    plt.title('Epoch vs. Training loss')
+    
+    plt.show()
 #    
 #    
     ########## Data Writing############
