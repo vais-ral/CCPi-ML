@@ -90,7 +90,15 @@ def convertLabels(labels,samplesize,out):
         label[i][assi] = 1.0
     return label
 
+def predict(model,dataLoader,labels_train):
 
+    for i, data in enumerate(dataLoader,0):
+            print(np.argmax(labels_train[(i*40):(i+40)],axis=0))
+            inputs,label = data
+            predictions = model(inputs)
+            predictions= predictions.data.cpu().numpy()
+            pred = (np.argmax(predictions))
+            #print('pred',i,predictions.shape,pred)
 def dataSplit(features,labels,trainSp,batch):
     
     feat_train = features[:int(features.shape[0]*trainSp)]
@@ -111,14 +119,14 @@ def dataSplit(features,labels,trainSp,batch):
     my_dataset_test = torch.utils.data.TensorDataset(tensor_x_test,tensor_y_test) # create your datset
     my_dataloader_test = torch.utils.data.DataLoader(my_dataset_test,batch_size=batch) # create your dataloader
 
-    return my_dataset,my_dataloader,my_dataset_test,my_dataloader_test
+    return my_dataset,my_dataloader,my_dataset_test,my_dataloader_test,labels_train
 
 ####### Network Topology ###########
  
 ### N = Batch number , D_in = input dimensions, H = didden layer size ,D_Out = output dimensions
 ##### BATCH COUNTING DOES NOT WORK YET!!!!! In testModel function y_pred outputs a tensor the size of BAtch size if you do torch.max(y_preds,1) you will get a tensor with the prediction for each of the items in the batch
 
-Epochs = 100
+Epochs = 200
 Learning_rate=0.1
 Momentum = 0.9
 
@@ -133,6 +141,7 @@ ran = np.arange(features.shape[0])
 np.random.shuffle(ran)
 features = features[ran]
 labels = labels[ran]
+labels = convertLabels(labels,labels.shape[0],10)
 
 
 filter1 = labels == 10
@@ -143,10 +152,9 @@ for N in range(0,50,4):
     if N == 0:
         N=1
     D_in, H, D_out =  400, N, 10
-    labels = convertLabels(labels,labels.shape[0],D_out)
 
     print('batch',N)
-    train_dataset,train_dataloader,test_dataset,test_dataloader = dataSplit(features,labels,0.7,40)
+    train_dataset,train_dataloader,test_dataset,test_dataloader,labels_train = dataSplit(features,labels,0.7,40)
 ####### Build Network Model ##########
     model = torch.nn.Sequential(
         torch.nn.Linear(D_in, H),
@@ -177,7 +185,7 @@ for N in range(0,50,4):
 #    
 #    
     ########## Data Writing############
-    f = open('Data/PyTorch_data_batchnum_'+str(N+1)+".txt","w")
+    f = open('Data/PyTorch_data_batchnum_'+str(N)+".txt","w")
     
     for i in range(0,len(plot_data["Epoch"])):
         f.write(str(plot_data["Epoch"][i])+","+str(N)+","+str(plot_data["Loss"][i])+","+str(plot_data["DeltaLoss"][i])+","+str(plot_data["Speed"][i])+"\n")
@@ -185,4 +193,5 @@ for N in range(0,50,4):
         
     
     f.close()
-
+    
+  

@@ -7,7 +7,9 @@ Created on Thu Jul 26 16:42:14 2018
 
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
+
 plt.axes()
+
 def addOutLayer(layer,num,text):
     
     radius = 1.0
