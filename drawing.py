@@ -49,7 +49,7 @@ def addLayer(layer,num,num2,text):
         
     plt.text((xaxis*layer)-((fontsize/10)*len(text)/2.0),(height/2.0)+yaxis,text,fontsize=fontsize)
 
-network = [[3,"Input"],[10,"tanh"],[5,"Out"]]
+network = [[3,"Input"],[10,"tanh"],[10,'DIck head'],[5,"Out"]]
 
 for layer in range(0,len(network)):
     
