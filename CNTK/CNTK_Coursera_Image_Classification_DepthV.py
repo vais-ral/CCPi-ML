@@ -27,7 +27,7 @@ C.cntk_py.set_fixed_random_seed(1)
     
 #CNTK Neural Network Builder
 def create_modelNN(features):
-    with C.layers.default_options(init=C.layers.glorot_uniform(), activation=C.relu):
+    with C.layers.default_options(init=C.layers.glorot_uniform(), activation=C.tanh):
         h = features
         for _ in range(num_hidden_layers):
             h = C.layers.Dense(hidden_layers_dim)(h)
@@ -86,8 +86,7 @@ def convertLabels(labels,samplesize,out):
 
 input_dim = 400
 num_output_classes = 10
-num_hidden_layers = 1
-hidden_layers_dim = 25
+
 mysamplesize = 5000
 
 #############################################################
@@ -110,10 +109,14 @@ features = features[:3500]
 labels = labels[:3500]
 ###########################################################
 ############Netowork Building##############################
-for bb in np.arange(0,500,10):
+for bb in np.arange(0,50,4):
+
     if bb == 0:
         bb = 1
         
+    num_hidden_layers = bb
+    hidden_layers_dim = 4
+ 
     print('batch',bb)
     #Define input and output dimensions
     input1 = C.input_variable(input_dim)
@@ -128,12 +131,12 @@ for bb in np.arange(0,500,10):
     #########################################################
     #########Learning Parameters############################
     #Alpha learning rate
-    learning_rate = 0.01
+    learning_rate = 0.1
     lr_schedule = C.learning_parameter_schedule(learning_rate) 
     learner = C.sgd(z.parameters, lr_schedule)
     trainer = C.Trainer(z, (loss, eval_error), [learner])
     
-    minibatch_size =(bb)
+    minibatch_size =(40)
     num_samples_per_sweep = 3500.0
     num_sweeps_to_train_with = 1.0
     num_minibatches_to_train = (num_samples_per_sweep * num_sweeps_to_train_with) / float(minibatch_size)
@@ -143,7 +146,7 @@ for bb in np.arange(0,500,10):
     plotdata = {"epoch":[],"batch":[], "loss":[], "deltaloss":[],"speed":[]}
     
     
-    limit = 500
+    limit = 200
     
         
     
@@ -152,8 +155,9 @@ for bb in np.arange(0,500,10):
     
     for epoch in range(0,limit):
         epochLoss = 0
+        start = time.time()
+
         for batch in range(0, int(math.ceil(num_minibatches_to_train))+1):
-            start = time.time()
             if(batch*minibatch_size>=features.shape[0]):
                 break
             train_features, train_labels = generate_minibatch(features,labels,batch, minibatch_size)
@@ -171,7 +175,7 @@ for bb in np.arange(0,500,10):
             epoch+=1
             if not (epochLoss == "NA" or error =="NA"):
                 plotdata["epoch"].append(epoch)
-                plotdata["batch"].append(minibatch_size)
+                plotdata["batch"].append(bb)
                 if epoch == 1:
                     plotdata["deltaloss"].append('Nan')
                 else:
@@ -182,7 +186,7 @@ for bb in np.arange(0,500,10):
     
             #plotdata["error"].append(error)
             
-    f = open('cntk_data_batchnum_'+str(bb+1)+".txt","w")
+    f = open('Data\VDepth_3\cntk_data_batchnum_'+str(bb)+".txt","w")
     
     for i in range(0,len(plotdata["epoch"])):
         f.write(str(plotdata["epoch"][i])+","+str(plotdata["batch"][i])+","+str(plotdata["loss"][i])+","+str(plotdata["deltaloss"][i])+","+str(plotdata["speed"][i])+"\n")
