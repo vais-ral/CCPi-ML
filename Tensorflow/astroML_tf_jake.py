@@ -51,11 +51,11 @@ def splitdata(X,y,ratio):
 
 ############# Settings #####################
 
-network = [[24,"tanh"],[16,"tanh"],[8,"tanh"],[1,"sigmoid"]]
-LR = 0.001
-Epochs = 1
-BatchSize = 200
-Multip = 0.65
+network = [[44,"tanh"],[26,"tanh"],[-1,0.15],[1,"sigmoid"]]
+LR = 0.003
+Epochs = 2000
+BatchSize = 400
+Multip = 0.4
 
 #############################################################
 
@@ -69,7 +69,8 @@ fig = plt.figure(figsize=(15, 15))
 fig.subplots_adjust(bottom=0.15, top=0.95, hspace=0.2,left=0.1, right=0.95, wspace=0.2)
 ax_loss = fig.add_subplot(232)
 
-for coll in range(1,2):
+for coll in range(3,4):
+    
 	X = np.loadtxt('AstroML_Data.txt',dtype=float)
 	y =  np.loadtxt('AstroML_Labels.txt',dtype=float)
 
@@ -116,7 +117,12 @@ for coll in range(1,2):
 	layers.append(keras.layers.Dense(network[0][0],input_dim=(coll+1),kernel_initializer='normal', activation=network[0][1]))
 	
 	for layer in range(1,len(network)):
-		layers.append(keras.layers.Dense(network[layer][0],input_dim=(coll+1),kernel_initializer='normal', activation=network[layer][1]))	
+        
+        #Dropout
+		if network[layer][0] == -1:
+			layers.append(keras.layers.Dropout(network[layer][1]))	
+		else:
+			layers.append(keras.layers.Dense(network[layer][0],kernel_initializer='normal', activation=network[layer][1]))	
 
 	model = keras.Sequential(layers)
 
@@ -137,8 +143,6 @@ for coll in range(1,2):
 
 	loss_data = history.history['loss']
 	epoch_data = np.arange(0,len((loss_data)))
-	print(loss_data)
-	print(epoch_data)
 
 	im_loss = ax_loss.plot(epoch_data,np.log(loss_data),'-',label=str(coll+1)+" Colours")
 	ax_loss.set_xlabel('Epoch')
@@ -149,7 +153,6 @@ for coll in range(1,2):
 		######## Plot Feature Data #########################
 
 		#Plot Size
-		fig.suptitle("Neural Network Classification of RR Layrae Stars using TensorFlow")
 		ax = fig.add_subplot(231)
 		#Scatter plot of original data with colours according to original labels
 		im = ax.scatter(X[-N_plot:, 1], X[-N_plot:, 0], c=y[-N_plot:],
@@ -165,24 +168,14 @@ for coll in range(1,2):
 		##############Evaluate the model ###################
 		scores = model.evaluate(X_test, y_test)
 		print("\n%s: %.2f%%" % (model.metrics_names[1], scores[1]*100))
-		#predict = np.round_(model.predict(X_test),decimals=0)
-		#
-		#print(predict,X_test.shape,predict[predict<0.2].shape,predict.shape)
-		#completeness, contamination = completeness_contamination(predict,y_test)
-		#
-		#print("completeness", completeness)
-		#print("contamination", contamination)
+
 
 		#%%
 
 		xlim = (0.7, 1.35)
 		ylim = (-0.15, 0.4)
-		#zlim = (np.amin(X[:,[2]]),np.amax(X[:,[2]]))
-		#glim = (np.amin(X[:,[3]]),np.amax(X[:,[3]]))
-
 		
 		predictions = np.transpose(model.predict(X_train))
-
 
 		test = predictionMap(xlim,ylim)
 
