@@ -26,18 +26,18 @@ def imageSegment(image,x,y,segmentWidth):
 	x_max = x + (segmentWidth/2)
 	y_min = y - (segmentWidth/2)
 	y_max = y + (segmentWidth/2)
-	segment = image[y_min:y_max,x_min:x_max]
+	segment = image[int(y_min):int(y_max),int(x_min):int(x_max)]
 	return segment
 
 def replaceImageSegment(image,segment,x,y,segmentWidth):
-
+	print(x,y,segmentWidth)
 	x_min = x - (segmentWidth/2)
 	x_max = x + (segmentWidth/2)
 	y_min = y - (segmentWidth/2)
 	y_max = y + (segmentWidth/2)
-
-	image[y_min:y_max,x_min:x_max] = segment
-
+	
+	image[int(y_min):int(y_max),int(x_min):int(x_max)] = segment
+	
 	return image
 
 def removeHotPixel(image,x,y,width):
@@ -65,25 +65,31 @@ def removeHotPixel(image,x,y,width):
 
 #plt.imshow(imageSub)
 #plt.show()
+fig = plt.figure(figsize=(15, 15))
 
-for i in range(0,21):
-	file = "%03d" % (i)
-	path = 'Images/Chamber_Flange_Tomo_'
-	print(i,file)
+for i in range(0,1):
+    file = "%03d" % (i)
+    path = 'Images/Chamber_Flange_Tomo_'
+    print(i,file)
 
-	imageTif = openImage(path+file+".tif")
-	imageArr = image2Numpy(imageTif)
-	filter1 = imageArr < 1.1e4
-	imageSub = imageArr.copy()
-	imageSub[filter1] = 0
-	newImage = imageArr.copy()
+    imageTif = openImage(path+file+".tif")
+    imageArr = image2Numpy(imageTif)
+    original = imageArr.copy()
+    ax = fig.add_subplot(211)
+    ax.imshow(original)
+    plt.show()
+    filter1 = imageArr < 1.1e4
+    imageSub = imageArr.copy()
+    imageSub[filter1] = 0
+    newImage = imageArr.copy()
 
-	for x in range(0,imageSub.shape[0]):
-		for y in range(0,imageSub.shape[1]):
-			if(imageSub[x,y]>0.1):
-				temp = newImage.copy()
-				newImage = removeHotPixel(newImage,y,x,10)
-
-
-	pathW = 'Cleaned/Chamber_Flange_Tomo_'
-	saveImage(newImage,pathW+file+".tif")
+    for x in range(0,imageSub.shape[0]):
+        for y in range(0,imageSub.shape[1]):
+            if(imageSub[x,y]>0.1):
+                temp = newImage.copy()
+                newImage = removeHotPixel(newImage,y,x,10)
+    ax = fig.add_subplot(212)
+    ax.imshow(original-newImage)
+    plt.show()
+	#pathW = 'Cleaned/Chamber_Flange_Tomo_'
+	#saveImage(newImage,pathW+file+".tif")
