@@ -126,7 +126,7 @@ def dataSplit(features,labels,trainSp,batch):
 ### N = Batch number , D_in = input dimensions, H = didden layer size ,D_Out = output dimensions
 ##### BATCH COUNTING DOES NOT WORK YET!!!!! In testModel function y_pred outputs a tensor the size of BAtch size if you do torch.max(y_preds,1) you will get a tensor with the prediction for each of the items in the batch
 
-Epochs = 200
+Epochs = 500
 Learning_rate=0.1
 Momentum = 0.9
 
@@ -147,14 +147,14 @@ labels = convertLabels(labels,labels.shape[0],10)
 filter1 = labels == 10
 labels[filter1] = 0.0
 
-for N in range(0,50,4):
+for N in range(1,50,1):
 
     if N == 0:
         N=1
     D_in, H, D_out =  400, N, 10
 
     print('batch',N)
-    train_dataset,train_dataloader,test_dataset,test_dataloader,labels_train = dataSplit(features,labels,0.7,40)
+    train_dataset,train_dataloader,test_dataset,test_dataloader,labels_train = dataSplit(features,labels,0.7,60)
 ####### Build Network Model ##########
     model = torch.nn.Sequential(
         torch.nn.Linear(D_in, H),
@@ -168,7 +168,7 @@ for N in range(0,50,4):
     
     ###### Train and Test ##########
     
-    model, plot_data = fit(model,optimizer,train_dataloader,loss_fn,Epochs,40)
+    model, plot_data = fit(model,optimizer,train_dataloader,loss_fn,Epochs,60)
     
     #testModel(model,my_dataloader_test,labels)
 #
@@ -185,7 +185,7 @@ for N in range(0,50,4):
 #    
 #    
     ########## Data Writing############
-    f = open('Data/PyTorch_data_batchnum_'+str(N)+".txt","w")
+    f = open('Benchmarking/Final Data/PyTorch_data_batchnum_'+str(N)+".txt","w")
     
     for i in range(0,len(plot_data["Epoch"])):
         f.write(str(plot_data["Epoch"][i])+","+str(N)+","+str(plot_data["Loss"][i])+","+str(plot_data["DeltaLoss"][i])+","+str(plot_data["Speed"][i])+"\n")
