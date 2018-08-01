@@ -109,7 +109,7 @@ features = features[:3500]
 labels = labels[:3500]
 ###########################################################
 ############Netowork Building##############################
-for bb in np.arange(0,50,4):
+for bb in np.arange(1,50,1):
 
     if bb == 0:
         bb = 1
@@ -134,7 +134,7 @@ for bb in np.arange(0,50,4):
     learner = C.sgd(z.parameters, lr_schedule)
     trainer = C.Trainer(z, (loss, eval_error), [learner])
     
-    minibatch_size =(40)
+    minibatch_size =(60)
     num_samples_per_sweep = 3500.0
     num_sweeps_to_train_with = 1.0
     num_minibatches_to_train = (num_samples_per_sweep * num_sweeps_to_train_with) / float(minibatch_size)
@@ -144,7 +144,7 @@ for bb in np.arange(0,50,4):
     plotdata = {"epoch":[],"batch":[], "loss":[], "deltaloss":[],"speed":[]}
     
     
-    limit = 200
+    limit = 500
     
         
     
@@ -184,7 +184,7 @@ for bb in np.arange(0,50,4):
     
             #plotdata["error"].append(error)
             
-    f = open('Data\VWidth\cntk_data_batchnum_'+str(bb)+".txt","w")
+    f = open('Benchmarking\Final Data\cntk_data_batchnum_'+str(bb)+".txt","w")
     
     for i in range(0,len(plotdata["epoch"])):
         f.write(str(plotdata["epoch"][i])+","+str(plotdata["batch"][i])+","+str(plotdata["loss"][i])+","+str(plotdata["deltaloss"][i])+","+str(plotdata["speed"][i])+"\n")
