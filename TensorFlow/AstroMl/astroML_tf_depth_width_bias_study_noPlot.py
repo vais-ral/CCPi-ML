@@ -74,7 +74,7 @@ keras.backend.tensorflow_backend._get_available_gpus()
 ############# Settings #####################
 
 LR = 0.0001
-Epochs = 1
+Epochs = 1000
 BatchSize = 400
 Multip = 1
 
@@ -95,8 +95,8 @@ X = np.loadtxt('AstroML_Data.txt')[:,[1,0]]
 y =  np.loadtxt('AstroML_Labels.txt')
 
 
-for depth in range(1,50,1):
-    for width in range(1,50,1):
+for depth in range(1,25,1):
+    for width in range(1,25,1):
 #for coll in range(3,4):
         print('Width:',width," Depth:",depth)
         if width == 0 :
