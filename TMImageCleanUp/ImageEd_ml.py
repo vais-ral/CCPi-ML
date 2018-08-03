@@ -101,9 +101,8 @@ def buildModel(input_shape,num_classes):
     model.add(keras.layers.Activation('relu'))
     model.add(keras.layers.MaxPooling2D(pool_size=(2, 2),data_format= keras.backend.image_data_format()))
 #    
-#    model.add(keras.layers.Conv2D(12, (3, 3),padding="same",data_format= keras.backend.image_data_format()))
-#    model.add(keras.layers.Activation('relu'))
-#    model.add(keras.layers.MaxPooling2D(pool_size=(2, 2),data_format= K.image_data_format()))
+    model.add(keras.layers.Conv2D(32, (3, 3),padding="same",data_format= keras.backend.image_data_format()))
+
 ##    
 #    model.add(keras.layers.Conv2D(64, (2, 2),data_format= K.image_data_format()))
 #    model.add(keras.layers.Activation('relu'))
@@ -200,8 +199,8 @@ def cleanImage(path,model,width,probThresh):
         posImage[seg] = np.ones(posImage[seg].shape)
         original[seg] = ndimage.median_filter(original[seg].copy(),size=width)    
     #Rebuild Image from segments
-    image = rebuildImage(original,imageShape.shape[0],imageShape.shape[1],width)
-    imagePos = rebuildImage(posImage,imageShape.shape[0],imageShape.shape[1],width)
+    image = rebuildImage(original,imageShape[0],imageShape[1],width)
+    imagePos = rebuildImage(posImage,imageShape[0],imageShape[1],width)
 
     return image, imagePos
 
@@ -284,19 +283,15 @@ def splitData(features,labels,ratio):
     return features[:int(length*ratio)],features[:int(length*(1-ratio))],labels[:int(length*ratio)],labels[:int(length*(1-ratio))]
 
 #Load Model
-<<<<<<< HEAD
 def loadModel(name):
     model = load_model(name)
-=======
-def loadModel():
-    model = load_model('TMML_Model_10_10_conv64_pool_dense200.h5')
->>>>>>> parent of 7cf8ee2... Update
     return model
 
 #Save Model
 def saveModel(model,name):
-
+    
     save = "d"
+        
     
     while(save != "y" or save != "n"):
 
@@ -380,13 +375,13 @@ splitDataRatio = 0.6
 
 splitDim = 10
 
-Epochs = 10
-miniBatch = 10000
+Epochs = 2500
+miniBatch = 1000
 Lr = 0.00003
 
 ######################################################
 #%%
-#buildLabeledData(30,3*10**3)
+buildLabeledData(50,3.3*10**3)
 #%%
     
 Features,Labels = loadTrainingData(trainFeatPath,trainLabelPath)
@@ -398,11 +393,8 @@ Features,Labels = shuffleData(Features,Labels)
 Features,Labels = reBalanceData(Features,Labels,rebalanceRatio)
 
 
-<<<<<<< HEAD
 Feat_train,Feat_test,Labels_train,Labels_test = splitData(Features,Labels,splitDataRatio) 
-=======
-Feat_train,Feat_test,Labels_train,Labels_test = splitData(Features,Labels,0.1) 
->>>>>>> parent of 7cf8ee2... Update
+
 #%%
 
 #Data formating NCWH or NWHC
@@ -416,7 +408,8 @@ print(Feat_train.shape)
 history, model = trainModel(model,Feat_train,Labels_train,Epochs,miniBatch,Lr)
 #scores = model.evaluate(Feat_test,Labels_test)
 #print("\n%s: %.2f%%" % (model.metrics_names[1], scores[1]*100))
-saveModel(model,saveModelName)
+model.save(saveModelName)
+#saveModel(model,saveModelName)
 
 #%%
 

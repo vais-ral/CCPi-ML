@@ -46,16 +46,39 @@ def splitdata(X,y,ratio):
     length = X.shape[0]
     return X[:int(length*ratio)],X[:int(length*(1-ratio))],y[:int(length*ratio)],y[:int(length*(1-ratio))]
 
+
+def generateData():
+    X = np.loadtxt('AstroML_Data.txt')
+    y =  np.loadtxt('AstroML_Labels.txt')
+    
+    X,y = reBalanceData(X,y,1)
+
+    ran = np.arange(X.shape[0])
+    np.random.shuffle(ran)
+    X= X[ran]
+    y= y[ran] 
+    
+    X_train, X_test, y_train, y_test = splitdata(X, y,0.7)
+
+    np.save('AstroML_X_Train_rebalance_1_split_0_7.npy',X_train)    
+    np.save('AstroML_X_Test_rebalance_1_split_0_7.npy',X_test)    
+    np.save('AstroML_Y_Train_rebalance_1_split_0_7.npy',y_train)    
+    np.save('AstroML_Y_Test_rebalance_1_split_0_7.npy',y_test)    
+    
+    
 #%%
 ############################################
-
+from tensorflow.python.client import device_lib
+print(device_lib.list_local_devices())
+sess = tf.Session(config=tf.ConfigProto(log_device_placement=True))
+keras.backend.tensorflow_backend._get_available_gpus()
 ############# Settings #####################
-
+generateData()
 network = [[44,"tanh"],[26,"tanh"],[-1,0.15],[1,"sigmoid"]]
 LR = 0.003
-Epochs = 2000
+Epochs = 3
 BatchSize = 400
-Multip = 0.4
+Multip = 1
 
 #############################################################
 
@@ -71,8 +94,8 @@ ax_loss = fig.add_subplot(232)
 
 for coll in range(3,4):
     
-	X = np.loadtxt('AstroML_Data.txt',dtype=float)
-	y =  np.loadtxt('AstroML_Labels.txt',dtype=float)
+	X = np.load('AstroML_Data_shuffled.npy')
+	y =  np.load('AstroML_Labels_shuffled.npy')
 
 	if coll == 0:
 		X = X[:, [1]]  # rearrange columns for better 1-color results
@@ -83,17 +106,9 @@ for coll in range(3,4):
 	elif coll==3:
 		X = X[:, [1,0,2,3]]  # rearrange columns for better 4-color results
 
-	## Shuffle Data
-
-	ran = np.arange(X.shape[0])
-	np.random.shuffle(ran)
-	X= X[ran]
-	y= y[ran]
-
 
 	#X_train,X_test,y_train,y_test = splitdata(X,y,0.7)
-	(X_train, X_test), (y_train, y_test) = split_samples(X, y, [0.75, 0.25],
-		                                             random_state=0)
+	X_train, X_test, y_train, y_test = splitdata(X, y,0.7)
 	X_train,y_train = reBalanceData(X_train,y_train,Multip)
 	#X_train, y_train = X, y
 
@@ -111,7 +126,6 @@ for coll in range(3,4):
 	###########################################################
 	############Netowork Building##############################
 
-	class_weight = {0:1.,1:((N_tot/N_rr)*1.2)}
 
 	layers = []
 	layers.append(keras.layers.Dense(network[0][0],input_dim=(coll+1),kernel_initializer='normal', activation=network[0][1]))
@@ -134,6 +148,11 @@ for coll in range(3,4):
 
 	completeness, contamination = completeness_contamination(predictions,(y_test))
 
+	scores = model.evaluate(X_test,y_test)
+	print(scores,model.metrics_names)
+	loss = scores[0]
+	print("\n%s: %.2f%%" % (model.metrics_names[1], scores[1]*100))
+    
 	comp.append(completeness)
 	cont.append(contamination)
 	color.append(coll+1)
