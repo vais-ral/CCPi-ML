@@ -74,7 +74,7 @@ keras.backend.tensorflow_backend._get_available_gpus()
 ############# Settings #####################
 
 LR = 0.0001
-Epochs = 1000
+Epochs = 1
 BatchSize = 400
 Multip = 1
 
@@ -154,7 +154,7 @@ for depth in range(1,50,1):
         loss_data = history.history['loss']
         epoch_data = np.arange(0,len((loss_data)))
     
-        np.save('WidthDepthData\Loss_History/'+str(width)+'_'+str(depth)+'.npy',np.array([epoch_data,np.array(loss_data)]))
+        np.save('WidthDepthData\loss'+str(width)+'_'+str(depth)+'.npy',np.array([epoch_data,np.array(loss_data)]))
     
 
         if True :
