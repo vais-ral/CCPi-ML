@@ -74,7 +74,7 @@ keras.backend.tensorflow_backend._get_available_gpus()
 ############# Settings #####################
 
 LR = 0.0001
-Epochs = 1
+Epochs = 1000
 BatchSize = 400
 Multip = 1
 
@@ -154,7 +154,7 @@ for depth in range(1,50,1):
         loss_data = history.history['loss']
         epoch_data = np.arange(0,len((loss_data)))
     
-        np.save(r'C:\Users\lhe39759\Documents\GitHub\CCPi-ML\TensorFlow\AstroMl\WidthDepthData\Loss_History/'+str(width)+'_'+str(depth)+'.npy',np.array([epoch_data,np.array(loss_data)]))
+        np.save('WidthDepthData\Loss_History/'+str(width)+'_'+str(depth)+'.npy',np.array([epoch_data,np.array(loss_data)]))
     
 
         if True :
@@ -176,7 +176,7 @@ for depth in range(1,50,1):
     		#%%
 
 print(len(widthD))
-f = open(r'C:\Users\lhe39759\Documents\GitHub\CCPi-ML\TensorFlow\AstroMl\WidthDepthData\data.txt',"w")
+f = open('WidthDepthData\data.txt',"w")
 for xx in range(0,len(widthD)):
     f.write(str(widthD[xx]) + "," + str(depthD[xx]) + "," + str(testLoss[xx]) + "," + str(trainLoss[xx])  + "," + str(comp[xx]) + "," + str(cont[xx]) + "\n" )
 f.close()
