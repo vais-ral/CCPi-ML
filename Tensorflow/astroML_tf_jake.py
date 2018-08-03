@@ -51,11 +51,11 @@ def splitdata(X,y,ratio):
 
 ############# Settings #####################
 
-network = [[44,"tanh"],[26,"tanh"],[-1,0.15],[1,"sigmoid"]]
+network = [[24,"tanh"],[16,"tanh"],[1,"sigmoid"]]
 LR = 0.003
 Epochs = 2000
 BatchSize = 400
-Multip = 0.4
+Multip = 0.1
 
 #############################################################
 
@@ -69,11 +69,11 @@ fig = plt.figure(figsize=(15, 15))
 fig.subplots_adjust(bottom=0.15, top=0.95, hspace=0.2,left=0.1, right=0.95, wspace=0.2)
 ax_loss = fig.add_subplot(232)
 
-for coll in range(3,4):
+for coll in range(1,4):
     
-	X = np.loadtxt('AstroML_Data.txt',dtype=float)
-	y =  np.loadtxt('AstroML_Labels.txt',dtype=float)
-
+	X = np.load('AstroML_Data_shuffled.npy')
+	y =  np.load('AstroML_Labels_shuffled.npy')
+	print(X.shape)
 	if coll == 0:
 		X = X[:, [1]]  # rearrange columns for better 1-color results
 	elif coll==1:
@@ -83,17 +83,9 @@ for coll in range(3,4):
 	elif coll==3:
 		X = X[:, [1,0,2,3]]  # rearrange columns for better 4-color results
 
-	## Shuffle Data
-
-	ran = np.arange(X.shape[0])
-	np.random.shuffle(ran)
-	X= X[ran]
-	y= y[ran]
-
-
 	#X_train,X_test,y_train,y_test = splitdata(X,y,0.7)
 	(X_train, X_test), (y_train, y_test) = split_samples(X, y, [0.75, 0.25],
-		                                             random_state=0)
+		                                             random_state=None)
 	X_train,y_train = reBalanceData(X_train,y_train,Multip)
 	#X_train, y_train = X, y
 
@@ -221,11 +213,11 @@ for coll in range(3,4):
 #astroML Data
 #######
 #0.48175182
-compML = np.array([0.68613139])
-#compML = np.array([0.68613139, 0.81021898, 0.87591241])
+#compML = np.array([0.68613139])
+compML = np.array([0.68613139, 0.81021898, 0.87591241])
 #0.85201794,
-#contML =  np.array([ 0.79295154, 0.80143113, 0.79020979])
-contML =  np.array([ 0.79295154])
+contML =  np.array([ 0.79295154, 0.80143113, 0.79020979])
+#contML =  np.array([ 0.79295154])
 
 
 ax = fig.add_subplot(233)
