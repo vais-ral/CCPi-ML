@@ -74,8 +74,8 @@ sess = tf.Session(config=tf.ConfigProto(log_device_placement=True))
 keras.backend.tensorflow_backend._get_available_gpus()
 ############# Settings #####################
 
-LR = 0.001
-Epochs = 200
+LR = 0.0001
+Epochs = 1
 BatchSize = 400
 Multip = 1
 
@@ -98,9 +98,10 @@ fig = plt.figure(figsize=(30, 15))
 fig.subplots_adjust(bottom=0.15, top=0.95, hspace=0.2,left=0.1, right=0.95, wspace=0.2)
 ax_loss = fig.add_subplot(121)
 
-for depth in range(1,10,2):
-    for width in range(1,10,2):
+for depth in range(1,50,1):
+    for width in range(1,50,1):
 #for coll in range(3,4):
+        print('Width:',width," Depth:",depth)
         if width == 0 :
             width = 1
             
