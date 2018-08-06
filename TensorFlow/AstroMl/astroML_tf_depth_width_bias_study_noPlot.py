@@ -75,7 +75,7 @@ keras.backend.tensorflow_backend._get_available_gpus()
 ############# Settings #####################
 
 LR =0.01
-Epochs = 1000
+Epochs = 10000
 BatchSize = 10000
 Multip = 1
 
