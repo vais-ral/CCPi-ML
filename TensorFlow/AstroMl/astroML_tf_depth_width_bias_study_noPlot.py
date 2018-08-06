@@ -7,7 +7,6 @@ from keras.metrics import categorical_accuracy
 from matplotlib.animation import FuncAnimation
 from astroML.utils import completeness_contamination
 from astroML.utils import split_samples
-import matplotlib.pyplot as plt
 
 #Convert labels from label to CNTK output format, basically an array of 0's with a 1 in the position of the desired label so 9 = [0 0 0 0 0 0 0 0 0 1]
 def convertLabels(labels,samplesize,out):
@@ -112,8 +111,7 @@ for depth in range(1,25,1):
         N_st = np.sum(y_train == 0)
         N_rr = N_tot - N_st
         N_plot = 5000 + N_rr
-        plt.scatter(X_train[-N_plot:, 1],X_train[-N_plot:, 0], c=y_train[-N_plot:],s=12, lw=0, cmap=plt.cm.binary, zorder=2)
-        plt.show()
+
     	#%%
     
     	###########################################################
