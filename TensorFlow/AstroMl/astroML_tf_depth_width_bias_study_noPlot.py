@@ -74,9 +74,9 @@ sess = tf.Session(config=tf.ConfigProto(log_device_placement=True))
 keras.backend.tensorflow_backend._get_available_gpus()
 ############# Settings #####################
 
-LR = 0.1
+LR =0.01
 Epochs = 1000
-BatchSize = np.load('AstroML_X_Train_rebalance_1_split_0_7.npy').shape[0]
+BatchSize = 10000
 Multip = 1
 
 #############################################################
@@ -93,7 +93,7 @@ comp = []
 cont = []
 color = []
 
-for depth in range(1,25,1):
+for depth in range(1,11,1):
     for width in range(1,25,1):
         X = np.loadtxt('AstroML_Data.txt')[:, [1,0]]
         y =  np.loadtxt('AstroML_Labels.txt')
@@ -102,10 +102,10 @@ for depth in range(1,25,1):
         if width == 0 :
             width = 1
             
-        X_train = np.load('AstroML_X_Train_rebalance_1_split_0_7.npy')
-        X_test =  np.load('AstroML_X_Test_rebalance_1_split_0_7.npy')
-        y_train = np.load('AstroML_Y_Train_rebalance_1_split_0_7.npy')
-        y_test =  np.load('AstroML_Y_Test_rebalance_1_split_0_7.npy')
+        X_train = np.load('AstroML_X_Train_rebalance_1_split_0_7.npy')[:10000]
+        X_test =  np.load('AstroML_X_Test_rebalance_1_split_0_7.npy')[:10000]
+        y_train = np.load('AstroML_Y_Train_rebalance_1_split_0_7.npy')[:10000]
+        y_test =  np.load('AstroML_Y_Test_rebalance_1_split_0_7.npy')[:10000]
         print(X_train.shape)
         X_train = X_train[:, [1,0]]  # rearrange columns for better 2-color results
         X_test = X_test[:, [1,0]]        
