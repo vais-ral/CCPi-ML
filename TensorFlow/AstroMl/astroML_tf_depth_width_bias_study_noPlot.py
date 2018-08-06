@@ -75,7 +75,7 @@ keras.backend.tensorflow_backend._get_available_gpus()
 ############# Settings #####################
 
 LR =0.01
-Epochs = 5000
+Epochs = 7000
 BatchSize = 10000
 Multip = 1
 
@@ -94,7 +94,7 @@ cont = []
 color = []
 collD = []
 for depth in range(1,11,1):
-    for width in range(1,25,1):
+    for width in range(1,21,1):
         for coll in range(2,5):
             
             X = np.loadtxt('AstroML_Data.txt')
@@ -175,21 +175,21 @@ for depth in range(1,11,1):
             np.save('WidthDepthData\loss'+str(width)+'_'+str(depth)+'.npy',np.array([epoch_data,np.array(loss_data)]))
         
     
-            if True :
-        		
-    
-        
-                xlim = (0.7, 1.35)
-                ylim = (-0.15, 0.4)
-        		    
-                test = predictionMap(xlim,ylim)
-        
-                xshape = int((xlim[1]-xlim[0])*1000)+1
-                yshape = int((ylim[1]-ylim[0])*1000)
-        		
-                test = test[:,[1,0]]
-    
-                predictions =(model.predict(test))
+#            if True :
+#        		
+#    
+#        
+#                xlim = (0.7, 1.35)
+#                ylim = (-0.15, 0.4)
+#        		    
+#                test = predictionMap(xlim,ylim)
+#        
+#                xshape = int((xlim[1]-xlim[0])*1000)+1
+#                yshape = int((ylim[1]-ylim[0])*1000)
+#        		
+#                test = test[:,[1,0]]
+#    
+#                predictions =(model.predict(test))
     
         		#%%
 

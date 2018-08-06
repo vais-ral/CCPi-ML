@@ -105,11 +105,11 @@ for coll in range(1,4):
 		X_train = X_train[:, [1]]  # rearrange columns for better 1-color results
 	elif coll==1:
 		X_train = X_train[:, [1,0]]  # rearrange columns for better 2-color results
-		X_test = X_test[:, [1,0,2,3]]  # rearrange columns for better 4-color results
+		X_test = X_test[:, [1,0]]  # rearrange columns for better 4-color results
 
 	elif coll==2:
 		X_train = X_train[:, [1,0,2]]  # rearrange columns for better 3-color results
-		X_test = X_test[:, [1,0,2,3]]  # rearrange columns for better 4-color results
+		X_test = X_test[:, [1,0,2]]  # rearrange columns for better 4-color results
 
 	elif coll==3:
 		X_train = X_train[:, [1,0,2,3]]  # rearrange columns for better 4-color results
