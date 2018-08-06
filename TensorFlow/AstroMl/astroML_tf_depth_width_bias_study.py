@@ -74,9 +74,9 @@ sess = tf.Session(config=tf.ConfigProto(log_device_placement=True))
 keras.backend.tensorflow_backend._get_available_gpus()
 ############# Settings #####################
 
-LR = 0.0001
-Epochs = 1
-BatchSize = 400
+LR = 0.001
+Epochs = 1000
+BatchSize = 2000
 Multip = 1
 
 #############################################################
@@ -97,9 +97,10 @@ y =  np.loadtxt('AstroML_Labels.txt')
 fig = plt.figure(figsize=(30, 15))
 fig.subplots_adjust(bottom=0.15, top=0.95, hspace=0.2,left=0.1, right=0.95, wspace=0.2)
 ax_loss = fig.add_subplot(121)
-
-for depth in range(1,50,1):
-    for width in range(1,50,1):
+widtharr = [1,6,12,18,24]
+deptharr = [1,2,3,4,6,9]
+for depth in deptharr:
+    for width in widtharr:
 #for coll in range(3,4):
         print('Width:',width," Depth:",depth)
         if width == 0 :

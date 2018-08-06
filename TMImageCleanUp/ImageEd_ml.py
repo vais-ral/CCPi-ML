@@ -82,7 +82,7 @@ def findZingers(image,threshold,width):
 
 #Clean an Image with no machine learning
 def cleanImageNoML(image,maskSize,thresh):
-    #Get Array of indexs where zingers are located
+    #Get Array of indexs where zingers are located`
     index = findZingers(image.copy(),thresh,maskSize)
     #Copy image array
     newImage = image.copy()
@@ -237,7 +237,7 @@ def rebuildImage(imageSeg,imX,imY,width):
 
     return image
 #Build Labeled data set
-def buildLabeledData(width,thresh):
+def buildLabeledData(width,thresh,filtWidth):
     
     zingerDataCombinedIm = []
     zingerDataCombinedLabels = []
@@ -252,7 +252,7 @@ def buildLabeledData(width,thresh):
         imageTif = openImage(path+file+".tif")
         imageArr = image2Numpy(imageTif)
         #Generate padded image and list of zingers
-        zingerData = imageZingArray(imageArr,width,thresh,0)
+        zingerData = imageZingArray(imageArr,filtWidth,thresh,0)
         #Generate split image and labels associated with each segments
         zingerDataIm, zingerDataLabel = buildSplitData(zingerData,width)
         zingerDataCombinedIm.append(zingerDataIm)
@@ -364,8 +364,8 @@ K.tensorflow_backend._get_available_gpus()
 
 imageTypeMulti = 65535
 
-trainFeatPath = r'C:\Users\lhe39759\Documents\GitHub\Data_TM\Chamber_Flange_Tomo_Features_10_10.npy'
-trainLabelPath = r'C:\Users\lhe39759\Documents\GitHub\Data_TM\Chamber_Flange_Tomo_Labels_10_10.npy'
+trainFeatPath = r'C:\Users\lhe39759\Documents\GitHub\CCPi-ML\TMImageCleanUp\Data\Chamber_Flange_Tomo_Features.npy'
+trainLabelPath = r'C:\Users\lhe39759\Documents\GitHub\CCPi-ML\TMImageCleanUp\DataM\Chamber_Flange_Tomo_Labels.npy'
 
 loadModelName = 'TMML_Model.h5'
 saveModelName = 'TMML_Model.h5'
@@ -373,7 +373,7 @@ saveModelName = 'TMML_Model.h5'
 rebalanceRatio = 1
 splitDataRatio = 0.6
 
-splitDim = 10
+splitDim = 300
 
 Epochs = 2500
 miniBatch = 1000
@@ -381,13 +381,13 @@ Lr = 0.00003
 
 ######################################################
 #%%
-buildLabeledData(50,3.3*10**3)
+#buildLabeledData(300,3.3*10**3,10)
 #%%
     
 Features,Labels = loadTrainingData(trainFeatPath,trainLabelPath)
 
-Features = Features.reshape(21* 42025, 10, 10)
-Labels = Labels.reshape(21*42025)
+#Features = Features.reshape(21* 42025, 10, 10)
+#Labels = Labels.reshape(21*42025)
 Features,Labels = shuffleData(Features,Labels)
 
 Features,Labels = reBalanceData(Features,Labels,rebalanceRatio)

@@ -176,7 +176,7 @@ for depth in range(1,25,1):
     		#%%
 
 print(len(widthD))
-f = open('WidthDepthData\data.txt',"w")
+f = open('data.txt',"w")
 for xx in range(0,len(widthD)):
     f.write(str(widthD[xx]) + "," + str(depthD[xx]) + "," + str(testLoss[xx]) + "," + str(trainLoss[xx])  + "," + str(comp[xx]) + "," + str(cont[xx]) + "\n" )
 f.close()

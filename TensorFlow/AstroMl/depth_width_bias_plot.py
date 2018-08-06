@@ -11,7 +11,7 @@ w,d,ltest,ltrain,comp,cont = np.genfromtxt(r'C:\Users\lhe39759\Documents\GitHub\
 #reshape(depth,width)
 measure = (1-ltrain)*(ltest/ltrain)
 print(measure)
-plt.imshow(measure.reshape(5,4))
+plt.imshow(measure.reshape(6,6))
 plt.xlabel('Width')
 plt.ylabel('Depth')
 plt.colorbar()

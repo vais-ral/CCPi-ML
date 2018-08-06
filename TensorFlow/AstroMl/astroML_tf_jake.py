@@ -60,10 +60,10 @@ def generateData():
     
     X_train, X_test, y_train, y_test = splitdata(X, y,0.7)
 
-    np.save('AstroML_X_Train_rebalance_1_split_0_7.npy',X_train)    
-    np.save('AstroML_X_Test_rebalance_1_split_0_7.npy',X_test)    
-    np.save('AstroML_Y_Train_rebalance_1_split_0_7.npy',y_train)    
-    np.save('AstroML_Y_Test_rebalance_1_split_0_7.npy',y_test)    
+    np.save('AstroML_X_Train_rebalanc01.npy',X_train)    
+    np.save('AstroML_X_Test_rebalance01.npy',X_test)    
+    np.save('AstroML_Y_Train_rebalance01.npy',y_train)    
+    np.save('AstroML_Y_Test_rebalance01.npy',y_test)    
     
     
 #%%
@@ -74,10 +74,11 @@ sess = tf.Session(config=tf.ConfigProto(log_device_placement=True))
 keras.backend.tensorflow_backend._get_available_gpus()
 ############# Settings #####################
 generateData()
-network = [[44,"tanh"],[26,"tanh"],[-1,0.15],[1,"sigmoid"]]
-LR = 0.003
-Epochs = 3
-BatchSize = 400
+print('done')
+network = [[35,"tanh"],[26,"tanh"],[16,"tanh"],[-1,0.1],[1,"sigmoid"]]
+LR = 0.0003
+Epochs = 3000
+BatchSize = 1500
 Multip = 1
 
 #############################################################
@@ -92,24 +93,31 @@ fig = plt.figure(figsize=(15, 15))
 fig.subplots_adjust(bottom=0.15, top=0.95, hspace=0.2,left=0.1, right=0.95, wspace=0.2)
 ax_loss = fig.add_subplot(232)
 
-for coll in range(3,4):
-    
-	X = np.load('AstroML_Data_shuffled.npy')
-	y =  np.load('AstroML_Labels_shuffled.npy')
 
+for coll in range(1,4):
+    
+
+	X_train = np.load('AstroML_X_Train_rebalanc01.npy')
+	X_test =  np.load('AstroML_X_Test_rebalance01.npy')
+	y_train = np.load('AstroML_Y_Train_rebalance01.npy')
+	y_test =  np.load('AstroML_Y_Test_rebalance01.npy')
 	if coll == 0:
-		X = X[:, [1]]  # rearrange columns for better 1-color results
+		X_train = X_train[:, [1]]  # rearrange columns for better 1-color results
 	elif coll==1:
-		X = X[:, [1,0]]  # rearrange columns for better 2-color results
+		X_train = X_train[:, [1,0]]  # rearrange columns for better 2-color results
+		X_test = X_test[:, [1,0,2,3]]  # rearrange columns for better 4-color results
+
 	elif coll==2:
-		X = X[:, [1,0,2]]  # rearrange columns for better 3-color results
+		X_train = X_train[:, [1,0,2]]  # rearrange columns for better 3-color results
+		X_test = X_test[:, [1,0,2,3]]  # rearrange columns for better 4-color results
+
 	elif coll==3:
-		X = X[:, [1,0,2,3]]  # rearrange columns for better 4-color results
+		X_train = X_train[:, [1,0,2,3]]  # rearrange columns for better 4-color results
+		X_test = X_test[:, [1,0,2,3]]  # rearrange columns for better 4-color results
 
 
 	#X_train,X_test,y_train,y_test = splitdata(X,y,0.7)
-	X_train, X_test, y_train, y_test = splitdata(X, y,0.7)
-	X_train,y_train = reBalanceData(X_train,y_train,Multip)
+
 	#X_train, y_train = X, y
 
 	N_tot = y_train.shape[0]
@@ -240,11 +248,11 @@ for coll in range(3,4):
 #astroML Data
 #######
 #0.48175182
-compML = np.array([0.68613139])
-#compML = np.array([0.68613139, 0.81021898, 0.87591241])
+#compML = np.array([0.68613139])
+compML = np.array([0.68613139, 0.81021898, 0.87591241])
 #0.85201794,
-#contML =  np.array([ 0.79295154, 0.80143113, 0.79020979])
-contML =  np.array([ 0.79295154])
+contML =  np.array([ 0.79295154, 0.80143113, 0.79020979])
+#contML =  np.array([ 0.79295154])
 
 
 ax = fig.add_subplot(233)
