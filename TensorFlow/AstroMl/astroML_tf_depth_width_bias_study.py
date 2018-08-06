@@ -99,8 +99,8 @@ fig.subplots_adjust(bottom=0.15, top=0.95, hspace=0.2,left=0.1, right=0.95, wspa
 ax_loss = fig.add_subplot(121)
 widtharr = [1,6,12,18,24]
 deptharr = [1,2,3,4,6,9]
-for depth in deptharr:
-    for width in widtharr:
+for depth in range(0,30,1):
+    for width in range(0,30,1):
 #for coll in range(3,4):
         print('Width:',width," Depth:",depth)
         if width == 0 :
