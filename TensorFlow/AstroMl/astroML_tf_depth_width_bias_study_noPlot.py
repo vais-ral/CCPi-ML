@@ -95,6 +95,8 @@ color = []
 
 for depth in range(1,25,1):
     for width in range(1,25,1):
+        X = np.loadtxt('AstroML_Data.txt')
+        y =  np.loadtxt('AstroML_Labels.txt')
 #for coll in range(3,4):
         print('Width:',width," Depth:",depth)
         if width == 0 :
