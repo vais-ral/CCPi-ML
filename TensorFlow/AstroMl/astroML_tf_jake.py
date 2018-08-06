@@ -76,9 +76,9 @@ keras.backend.tensorflow_backend._get_available_gpus()
 generateData()
 print('done')
 network = [[35,"tanh"],[26,"tanh"],[16,"tanh"],[-1,0.1],[1,"sigmoid"]]
-LR = 0.0003
-Epochs = 3000
-BatchSize = 1500
+LR = 0.003
+Epochs = 200
+BatchSize = np.load('AstroML_X_Train_rebalanc01.npy').shape[0]
 Multip = 1
 
 #############################################################

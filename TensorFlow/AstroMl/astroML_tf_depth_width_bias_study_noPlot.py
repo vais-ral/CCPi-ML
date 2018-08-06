@@ -75,7 +75,7 @@ keras.backend.tensorflow_backend._get_available_gpus()
 ############# Settings #####################
 
 LR =0.01
-Epochs = 10000
+Epochs = 5000
 BatchSize = 10000
 Multip = 1
 
@@ -92,93 +92,111 @@ testCont = []
 comp = []
 cont = []
 color = []
-
+collD = []
 for depth in range(1,11,1):
     for width in range(1,25,1):
-        X = np.loadtxt('AstroML_Data.txt')[:, [1,0]]
-        y =  np.loadtxt('AstroML_Labels.txt')
+        for coll in range(2,5):
+            
+            X = np.loadtxt('AstroML_Data.txt')
+            y =  np.loadtxt('AstroML_Labels.txt')
 #for coll in range(3,4):
-        print('Width:',width," Depth:",depth)
-        if width == 0 :
-            width = 1
+            print('Width:',width," Depth:",depth)
+
             
-        X_train = np.load('AstroML_X_Train_rebalance_1_split_0_7.npy')[:10000]
-        X_test =  np.load('AstroML_X_Test_rebalance_1_split_0_7.npy')[:10000]
-        y_train = np.load('AstroML_Y_Train_rebalance_1_split_0_7.npy')[:10000]
-        y_test =  np.load('AstroML_Y_Test_rebalance_1_split_0_7.npy')[:10000]
-        print(X_train.shape)
-        X_train = X_train[:, [1,0]]  # rearrange columns for better 2-color results
-        X_test = X_test[:, [1,0]]        
-        N_tot = y_train.shape[0]
-        N_st = np.sum(y_train == 0)
-        N_rr = N_tot - N_st
-        N_plot = 5000 + N_rr
+            X_train = np.load('AstroML_X_Train_rebalance_1_split_0_7.npy')[:10000]
+            X_test =  np.load('AstroML_X_Test_rebalance_1_split_0_7.npy')[:10000]
+            y_train = np.load('AstroML_Y_Train_rebalance_1_split_0_7.npy')[:10000]
+            y_test =  np.load('AstroML_Y_Test_rebalance_1_split_0_7.npy')[:10000]
+            print(X_train.shape)
+       
+            N_tot = y_train.shape[0]
+            N_st = np.sum(y_train == 0)
+            N_rr = N_tot - N_st
+            N_plot = 5000 + N_rr
 
-    	#%%
+            if coll==2:
+                X = X[:, [1,0]]  # rearrange columns for better 2-color results
+
+                X_train = X_train[:, [1,0]]  # rearrange columns for better 2-color results
+                X_test = X_test[:, [1,0]]  # rearrange columns for better 4-color results
+        
+            elif coll==3:
+                X = X[:, [1,0,2]]  # rearrange columns for better 2-color results
+
+                X_train = X_train[:, [1,0,2]]  # rearrange columns for better 3-color results
+                X_test = X_test[:, [1,0,2]]  # rearrange columns for better 4-color results
+        
+            elif coll==4:
+                X = X[:, [1,0,2,3]]  # rearrange columns for better 2-color results
+
+                X_train = X_train[:, [1,0,2,3]]  # rearrange columns for better 4-color results
+                X_test = X_test[:, [1,0,2,3]]  # rearrange columns for better 4-color results
     
-    	###########################################################
-    	############Netowork Building##############################
-    
-    
-        layers = []
-        layers.append(keras.layers.Dense(width,input_dim=2,kernel_initializer='normal', activation='tanh'))
-    	
-        for layer in range(1,(depth)):
-            print(layer)
-            layers.append(keras.layers.Dense(width,kernel_initializer='normal', activation='tanh'))
+        	#%%
+        
+        	###########################################################
+        	############Netowork Building##############################
+        
+        
+            layers = []
+            layers.append(keras.layers.Dense(width,input_dim=coll,kernel_initializer='normal', activation='tanh'))
+        	
+            for layer in range(1,(depth)):
+                print(layer)
+                layers.append(keras.layers.Dense(width,kernel_initializer='normal', activation='tanh'))
+                
+            layers.append(keras.layers.Dense(1,kernel_initializer='normal', activation='sigmoid'))
             
-        layers.append(keras.layers.Dense(1,kernel_initializer='normal', activation='sigmoid'))
+            model = keras.Sequential(layers)
         
-        model = keras.Sequential(layers)
-    
-        model.compile(optimizer=tf.train.AdamOptimizer(learning_rate=LR), loss='binary_crossentropy', metrics=['binary_accuracy', 'categorical_accuracy'])
-        print(X_train.shape)
-        history = model.fit(X_train, y_train, batch_size=BatchSize,epochs=Epochs, verbose=2)
-    	
-        predictions = np.around(model.predict(X).reshape(model.predict(X).shape[0],))
-    
-        completeness, contamination = completeness_contamination(predictions,(y))
-    
-        scores = model.evaluate(X_test,y_test)
+            model.compile(optimizer=tf.train.AdamOptimizer(learning_rate=LR), loss='binary_crossentropy', metrics=['binary_accuracy', 'categorical_accuracy'])
+            print(X_train.shape)
+            history = model.fit(X_train, y_train, batch_size=BatchSize,epochs=Epochs, verbose=2)
+        	
+            predictions = np.around(model.predict(X).reshape(model.predict(X).shape[0],))
         
-        lossTest = scores[0]
+            completeness, contamination = completeness_contamination(predictions,(y))
         
-        widthD.append(width)
-        depthD.append(depth)
-        testLoss.append(lossTest)
-        trainLoss.append(history.history['loss'][-1])
-        comp.append(completeness)
-        cont.append(contamination)
-        print("completeness",completeness)
-        print("contamination", contamination)
-        loss_data = history.history['loss']
-        epoch_data = np.arange(0,len((loss_data)))
+            scores = model.evaluate(X_test,y_test)
+            
+            lossTest = scores[0]
+            collD.append(coll)
+            widthD.append(width)
+            depthD.append(depth)
+            testLoss.append(lossTest)
+            trainLoss.append(history.history['loss'][-1])
+            comp.append(completeness)
+            cont.append(contamination)
+            print("completeness",completeness)
+            print("contamination", contamination)
+            loss_data = history.history['loss']
+            epoch_data = np.arange(0,len((loss_data)))
+        
+            np.save('WidthDepthData\loss'+str(width)+'_'+str(depth)+'.npy',np.array([epoch_data,np.array(loss_data)]))
+        
     
-        np.save('WidthDepthData\loss'+str(width)+'_'+str(depth)+'.npy',np.array([epoch_data,np.array(loss_data)]))
+            if True :
+        		
     
-
-        if True :
-    		
-
+        
+                xlim = (0.7, 1.35)
+                ylim = (-0.15, 0.4)
+        		    
+                test = predictionMap(xlim,ylim)
+        
+                xshape = int((xlim[1]-xlim[0])*1000)+1
+                yshape = int((ylim[1]-ylim[0])*1000)
+        		
+                test = test[:,[1,0]]
     
-            xlim = (0.7, 1.35)
-            ylim = (-0.15, 0.4)
-    		    
-            test = predictionMap(xlim,ylim)
+                predictions =(model.predict(test))
     
-            xshape = int((xlim[1]-xlim[0])*1000)+1
-            yshape = int((ylim[1]-ylim[0])*1000)
-    		
-            test = test[:,[1,0]]
-
-            predictions =(model.predict(test))
-
-    		#%%
+        		#%%
 
 print(len(widthD))
-f = open('data.txt',"w")
+f = open('WidthDepthData\\'+str(coll)+'_data.txt',"w")
 for xx in range(0,len(widthD)):
-    f.write(str(widthD[xx]) + "," + str(depthD[xx]) + "," + str(testLoss[xx]) + "," + str(trainLoss[xx])  + "," + str(comp[xx]) + "," + str(cont[xx]) + "\n" )
+    f.write(str(collD[xx]) + "," +str(widthD[xx]) + "," + str(depthD[xx]) + "," + str(testLoss[xx]) + "," + str(trainLoss[xx])  + "," + str(comp[xx]) + "," + str(cont[xx]) + "\n" )
 f.close()
 
 
