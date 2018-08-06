@@ -100,7 +100,7 @@ for depth in range(1,11,1):
             X = np.loadtxt('AstroML_Data.txt')
             y =  np.loadtxt('AstroML_Labels.txt')
 #for coll in range(3,4):
-            print('Width:',width," Depth:",depth)
+            print('Width:',width," Depth:",depth,"Col:",coll)
 
             
             X_train = np.load('AstroML_X_Train_rebalance_1_split_0_7.npy')[:10000]
@@ -151,7 +151,7 @@ for depth in range(1,11,1):
         
             model.compile(optimizer=tf.train.AdamOptimizer(learning_rate=LR), loss='binary_crossentropy', metrics=['binary_accuracy', 'categorical_accuracy'])
             print(X_train.shape)
-            history = model.fit(X_train, y_train, batch_size=BatchSize,epochs=Epochs, verbose=2)
+            history = model.fit(X_train, y_train, batch_size=BatchSize,epochs=Epochs, verbose=0)
         	
             predictions = np.around(model.predict(X).reshape(model.predict(X).shape[0],))
         
