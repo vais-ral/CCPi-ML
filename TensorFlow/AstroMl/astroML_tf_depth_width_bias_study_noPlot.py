@@ -149,14 +149,14 @@ for depth in range(1,11,1):
             model.compile(optimizer=tf.train.AdamOptimizer(learning_rate=0.1), loss='binary_crossentropy', metrics=['binary_accuracy', 'categorical_accuracy'])
             history = model.fit(X_train, y_train, batch_size=BatchSize,epochs=100, verbose=0)
             model.compile(optimizer=tf.train.AdamOptimizer(learning_rate=0.01), loss='binary_crossentropy', metrics=['binary_accuracy', 'categorical_accuracy'])
-            history = model.fit(X_train, y_train, batch_size=BatchSize,epochs=2000, verbose=0)
+            history = model.fit(X_train, y_train, batch_size=BatchSize,epochs=1000, verbose=0)
             model.compile(optimizer=tf.train.AdamOptimizer(learning_rate=LR), loss='binary_crossentropy', metrics=['binary_accuracy', 'categorical_accuracy'])
             history = model.fit(X_train, y_train, batch_size=BatchSize,epochs=Epochs, verbose=0)
             predictions = np.around(model.predict(X_test_unbalanced).reshape(model.predict(X_test_unbalanced).shape[0],))
         
             completeness, contamination = completeness_contamination(predictions,(y_test_unbalanced))
         
-            #scores = model.evaluate(X_test,y_test)
+            scores = model.evaluate(X_test,y_test)
             
             lossTest = scores[0]
             collD.append(coll)
