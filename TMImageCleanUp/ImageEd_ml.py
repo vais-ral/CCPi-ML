@@ -364,8 +364,8 @@ K.tensorflow_backend._get_available_gpus()
 
 imageTypeMulti = 65535
 
-trainFeatPath = r'C:\Users\lhe39759\Documents\GitHub\CCPi-ML\TMImageCleanUp\Data\Chamber_Flange_Tomo_Features.npy'
-trainLabelPath = r'C:\Users\lhe39759\Documents\GitHub\CCPi-ML\TMImageCleanUp\DataM\Chamber_Flange_Tomo_Labels.npy'
+trainFeatPath = r'C:\Users\lhe39759\Documents\GitHub\Data_TM\Data\Chamber_Flange_Tomo_Features_300_300.npy'
+trainLabelPath = r'C:\Users\lhe39759\Documents\GitHub\Data_TM\Data\Chamber_Flange_Tomo_Labels_300_300.npy'
 
 loadModelName = 'TMML_Model.h5'
 saveModelName = 'TMML_Model.h5'

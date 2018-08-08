@@ -74,9 +74,9 @@ sess = tf.Session(config=tf.ConfigProto(log_device_placement=True))
 keras.backend.tensorflow_backend._get_available_gpus()
 ############# Settings #####################
 
-LR =0.01
-Epochs = 7000
-BatchSize = 10000
+LR =0.0001
+Epochs = 3000
+BatchSize = np.load('AstroML_X_Train_Shuffle_Split_0_7_Rebalance_1.npy').shape[0]
 Multip = 1
 
 #############################################################
@@ -93,21 +93,21 @@ comp = []
 cont = []
 color = []
 collD = []
-for depth in range(1,11,1):
-    for width in range(1,21,1):
-        for coll in range(2,5):
+for depth in range(0,11,1):
+    for width in range(0,25,1):
+        for coll in range(4,5):
             
-            X = np.loadtxt('AstroML_Data.txt')
-            y =  np.loadtxt('AstroML_Labels.txt')
+
 #for coll in range(3,4):
             print('Width:',width," Depth:",depth,"Col:",coll)
 
             
-            X_train = np.load('AstroML_X_Train_rebalance_1_split_0_7.npy')[:10000]
-            X_test =  np.load('AstroML_X_Test_rebalance_1_split_0_7.npy')[:10000]
-            y_train = np.load('AstroML_Y_Train_rebalance_1_split_0_7.npy')[:10000]
-            y_test =  np.load('AstroML_Y_Test_rebalance_1_split_0_7.npy')[:10000]
-            print(X_train.shape)
+            X_train = np.load('AstroML_X_Train_Shuffle_Split_0_7_Rebalance_1.npy')
+            X_test =  np.load('AstroML_X_Test_Shuffle_Split_0_7_Rebalance_1.npy')
+            y_train = np.load('AstroML_Y_Train_Shuffle_Split_0_7_Rebalance_1.npy')
+            y_test =  np.load('AstroML_Y_Test_Shuffle_Split_0_7_Rebalance_1.npy')
+            X_test_unbalanced = np.load('AstroML_X_Test_Shuffle_Split_0_7.npy')
+            y_test_unbalanced = np.load('AstroML_Y_Test_Shuffle_Split_0_7.npy')
        
             N_tot = y_train.shape[0]
             N_st = np.sum(y_train == 0)
@@ -115,23 +115,21 @@ for depth in range(1,11,1):
             N_plot = 5000 + N_rr
 
             if coll==2:
-                X = X[:, [1,0]]  # rearrange columns for better 2-color results
 
                 X_train = X_train[:, [1,0]]  # rearrange columns for better 2-color results
                 X_test = X_test[:, [1,0]]  # rearrange columns for better 4-color results
-        
+                X_test_unbalanced = X_test_unbalanced[:, [1,0]]  # rearrange columns for better 2-color results
             elif coll==3:
-                X = X[:, [1,0,2]]  # rearrange columns for better 2-color results
-
                 X_train = X_train[:, [1,0,2]]  # rearrange columns for better 3-color results
                 X_test = X_test[:, [1,0,2]]  # rearrange columns for better 4-color results
+                X_test_unbalanced = X_test_unbalanced[:, [1,0,2]]  # rearrange columns for better 2-color results
         
             elif coll==4:
-                X = X[:, [1,0,2,3]]  # rearrange columns for better 2-color results
-
                 X_train = X_train[:, [1,0,2,3]]  # rearrange columns for better 4-color results
                 X_test = X_test[:, [1,0,2,3]]  # rearrange columns for better 4-color results
-    
+                X_test_unbalanced = X_test_unbalanced[:, [1,0,2,3]]  # rearrange columns for better 2-color results
+
+  
         	#%%
         
         	###########################################################
@@ -142,22 +140,23 @@ for depth in range(1,11,1):
             layers.append(keras.layers.Dense(width,input_dim=coll,kernel_initializer='normal', activation='tanh'))
         	
             for layer in range(1,(depth)):
-                print(layer)
                 layers.append(keras.layers.Dense(width,kernel_initializer='normal', activation='tanh'))
                 
             layers.append(keras.layers.Dense(1,kernel_initializer='normal', activation='sigmoid'))
             
             model = keras.Sequential(layers)
         
+            model.compile(optimizer=tf.train.AdamOptimizer(learning_rate=0.1), loss='binary_crossentropy', metrics=['binary_accuracy', 'categorical_accuracy'])
+            history = model.fit(X_train, y_train, batch_size=BatchSize,epochs=100, verbose=0)
+            model.compile(optimizer=tf.train.AdamOptimizer(learning_rate=0.01), loss='binary_crossentropy', metrics=['binary_accuracy', 'categorical_accuracy'])
+            history = model.fit(X_train, y_train, batch_size=BatchSize,epochs=2000, verbose=0)
             model.compile(optimizer=tf.train.AdamOptimizer(learning_rate=LR), loss='binary_crossentropy', metrics=['binary_accuracy', 'categorical_accuracy'])
-            print(X_train.shape)
             history = model.fit(X_train, y_train, batch_size=BatchSize,epochs=Epochs, verbose=0)
-        	
-            predictions = np.around(model.predict(X).reshape(model.predict(X).shape[0],))
+            predictions = np.around(model.predict(X_test_unbalanced).reshape(model.predict(X_test_unbalanced).shape[0],))
         
-            completeness, contamination = completeness_contamination(predictions,(y))
+            completeness, contamination = completeness_contamination(predictions,(y_test_unbalanced))
         
-            scores = model.evaluate(X_test,y_test)
+            #scores = model.evaluate(X_test,y_test)
             
             lossTest = scores[0]
             collD.append(coll)
@@ -172,7 +171,7 @@ for depth in range(1,11,1):
             loss_data = history.history['loss']
             epoch_data = np.arange(0,len((loss_data)))
         
-            np.save('WidthDepthData\loss'+str(width)+'_'+str(depth)+'.npy',np.array([epoch_data,np.array(loss_data)]))
+            np.save('WidthDepthData\loss_'+str(coll)+'_'+str(width)+'_'+str(depth)+'.npy',np.array([epoch_data,np.array(loss_data)]))
         
     
 #            if True :
@@ -199,5 +198,7 @@ for xx in range(0,len(widthD)):
     f.write(str(collD[xx]) + "," +str(widthD[xx]) + "," + str(depthD[xx]) + "," + str(testLoss[xx]) + "," + str(trainLoss[xx])  + "," + str(comp[xx]) + "," + str(cont[xx]) + "\n" )
 f.close()
 
+#%%
+model.save('model.h5')
 
 

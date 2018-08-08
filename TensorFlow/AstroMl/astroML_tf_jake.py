@@ -51,7 +51,6 @@ def generateData():
     X = np.loadtxt('AstroML_Data.txt')
     y =  np.loadtxt('AstroML_Labels.txt')
     
-    X,y = reBalanceData(X,y,1)
 
     ran = np.arange(X.shape[0])
     np.random.shuffle(ran)
@@ -59,12 +58,15 @@ def generateData():
     y= y[ran] 
     
     X_train, X_test, y_train, y_test = splitdata(X, y,0.7)
+    X_train, y_train = reBalanceData(X_train,y_train,1)
 
-    np.save('AstroML_X_Train_rebalanc01.npy',X_train)    
-    np.save('AstroML_X_Test_rebalance01.npy',X_test)    
-    np.save('AstroML_Y_Train_rebalance01.npy',y_train)    
-    np.save('AstroML_Y_Test_rebalance01.npy',y_test)    
-    
+    np.save('AstroML_X_Train_Shuffle_Split_0_7_Rebalance_1.npy',X_train)    
+    np.save('AstroML_X_Test_Shuffle_Split_0_7_Rebalance_1.npy',X_test)    
+    np.save('AstroML_Y_Train_Shuffle_Split_0_7_Rebalance_1.npy',y_train)    
+    np.save('AstroML_Y_Test_Shuffle_Split_0_7_Rebalance_1.npy',y_test)    
+    X_test, y_test = reBalanceData(X_train,y_train,1)   
+    np.save('AstroML_X_Test_Shuffle_Split_0_7.npy',X_test)    
+    np.save('AstroML_Y_Test_Shuffle_Split_0_7.npy',y_test)    
     
 #%%
 ############################################
@@ -75,9 +77,9 @@ keras.backend.tensorflow_backend._get_available_gpus()
 ############# Settings #####################
 generateData()
 print('done')
-network = [[35,"tanh"],[26,"tanh"],[16,"tanh"],[-1,0.1],[1,"sigmoid"]]
-LR = 0.003
-Epochs = 200
+network = [[35,"tanh"],[26,"tanh"],[16,"tanh"],[1,"sigmoid"]]
+LR = 0.001
+Epochs = 50
 BatchSize = np.load('AstroML_X_Train_rebalanc01.npy').shape[0]
 Multip = 1
 
@@ -93,27 +95,33 @@ fig = plt.figure(figsize=(15, 15))
 fig.subplots_adjust(bottom=0.15, top=0.95, hspace=0.2,left=0.1, right=0.95, wspace=0.2)
 ax_loss = fig.add_subplot(232)
 
-
+generateData()
 for coll in range(1,4):
-    
+	X = np.loadtxt('AstroML_Data.txt')
+	y =  np.loadtxt('AstroML_Labels.txt')    
 
-	X_train = np.load('AstroML_X_Train_rebalanc01.npy')
-	X_test =  np.load('AstroML_X_Test_rebalance01.npy')
-	y_train = np.load('AstroML_Y_Train_rebalance01.npy')
-	y_test =  np.load('AstroML_Y_Test_rebalance01.npy')
+	X_train = np.load('AstroML_X_Train_Shuffle_Split_0_7_Rebalance_1.npy')
+	X_test =  np.load('AstroML_X_Test_Shuffle_Split_0_7_Rebalance_1.npy')
+	y_train = np.load('AstroML_Y_Train_Shuffle_Split_0_7_Rebalance_1.npy')
+	y_test =  np.load('AstroML_Y_Test_Shuffle_Split_0_7_Rebalance_1.npy')
+    X_test_unbalanced = np.load('AstroML_X_Test_Shuffle_Split_0_7.npy')
+    y_test_unbalanced = np.load('AstroML_Y_Test_Shuffle_Split_0_7.npy')
+    
 	if coll == 0:
 		X_train = X_train[:, [1]]  # rearrange columns for better 1-color results
+		X = X[:, [1]]
 	elif coll==1:
 		X_train = X_train[:, [1,0]]  # rearrange columns for better 2-color results
 		X_test = X_test[:, [1,0]]  # rearrange columns for better 4-color results
-
+		X = X[:, [1,0]]
 	elif coll==2:
 		X_train = X_train[:, [1,0,2]]  # rearrange columns for better 3-color results
 		X_test = X_test[:, [1,0,2]]  # rearrange columns for better 4-color results
-
+		X = X[:, [1,0,2]]
 	elif coll==3:
 		X_train = X_train[:, [1,0,2,3]]  # rearrange columns for better 4-color results
 		X_test = X_test[:, [1,0,2,3]]  # rearrange columns for better 4-color results
+		X = X[:, [1,0,2,3]]
 
 
 	#X_train,X_test,y_train,y_test = splitdata(X,y,0.7)
@@ -152,9 +160,9 @@ for coll in range(1,4):
 
 	history = model.fit(X_train, y_train, batch_size=BatchSize,epochs=Epochs, verbose=2)
 
-	predictions = np.around(model.predict(X_test).reshape(model.predict(X_test).shape[0],))
+	predictions = np.around(model.predict(X_test_unbalanced).reshape(model.predict(X_test_unbalanced).shape[0],))
 
-	completeness, contamination = completeness_contamination(predictions,(y_test))
+	completeness, contamination = completeness_contamination(predictions,(y_test_unbalanced))
 
 	scores = model.evaluate(X_test,y_test)
 	print(scores,model.metrics_names)
