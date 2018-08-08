@@ -93,8 +93,8 @@ comp = []
 cont = []
 color = []
 collD = []
-for depth in range(0,11,1):
-    for width in range(0,25,1):
+for depth in range(1,11,1):
+    for width in range(1,26,1):
         for coll in range(4,5):
             
 
