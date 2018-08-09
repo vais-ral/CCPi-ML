@@ -404,7 +404,9 @@ Feat_train,Feat_test,input_shape = channelOrderingFormat(Feat_train,Feat_test,im
 #%%
 
 model = loadOrGenModel(input_shape,loadModelName)
+print(model.summary())
 print(Feat_train.shape)
+
 history, model = trainModel(model,Feat_train,Labels_train,Epochs,miniBatch,Lr)
 #scores = model.evaluate(Feat_test,Labels_test)
 #print("\n%s: %.2f%%" % (model.metrics_names[1], scores[1]*100))
