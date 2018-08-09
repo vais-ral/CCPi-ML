@@ -75,6 +75,6 @@ print(model.summary())
 #%%
 print(X_train.shape)
 #%%
-model.compile(optimizer=keras.optimizers.Adam(lr=0.001), loss='sparse_categorical_crossentropy', metrics=['categorical_accuracy'])
+model.compile(optimizer=keras.optimizers.Adam(lr=0.000001), loss='sparse_categorical_crossentropy', metrics=['categorical_accuracy'])
 model.fit(X_train, y_train, batch_size=1,epochs=10, verbose=2)
 print(model.summary())
