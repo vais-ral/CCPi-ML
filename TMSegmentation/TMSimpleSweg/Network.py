@@ -9,6 +9,8 @@ import keras
 import numpy as np
 import matplotlib.pyplot as plt
 import keras.backend as K
+from NetData import NetData
+from model.losses import bce_dice_loss, dice_loss, weighted_bce_dice_loss, weighted_dice_loss, dice_coeff
 
 class NetModel:
 
@@ -51,28 +53,35 @@ class NetModel:
 #    }    
 #
 #    """
-    #CANT HAVE FLATTERN AS FIRST LAYER YET    
+#CANT HAVE FLATTERN AS FIRST LAYER YET    
     
     def __init__(self,Network,Backend):
         
         self.backend = Backend
-
+        self.history = None
+        self.netData = None
         if type(Network) == dict:
             self.input = Network["Input"]
             self.hiddenLayers = Network["HiddenLayers"]
             self.model = self.buildModel()
-
+        elif (Network) == None:
+            print("Empty Network Created,use model.loadModel(path,custom_object) function to load model.")
         else:# type(Network) == type(keras.engine.training.Model):
-            print("MODEL")
             self.model = Network
-        
+    
+    def loadData(self,netDataObj):
+        self.netData = netDataObj  
+    
     def buildModel(self):
         if self.backend == 'keras':
             return self.kerasModelBackend()
  
-    def loadModel(self,name):
+    def loadModel(self,name,customObject):
         if self.backend == 'keras':
-            return keras.models.load_model(name)
+            if customObject is not None:
+                self.model = keras.models.load_model(name,custom_objects=customObject)
+            else:
+                self.model = keras.models.load_model(name)                
         
     def saveModel(self,name):
         if self.backend == 'keras':
@@ -82,14 +91,26 @@ class NetModel:
         if self.backend== 'keras':
             self.kerasCompileModel(Optimizer,Loss,Metrics)
                 
-    def trainModel(self,features,labels,Epochs = 100,Batch_size =1, Verbose = 2):
-        if self.backend== 'keras':
-            return self.kerasTrainModel(features,labels,Epochs,Batch_size,Verbose)    
+    def trainModel(self,Epochs = 100,Batch_size =1, Verbose = 2):
+        if self.netData != None:
+            if self.backend== 'keras':
+                self.history = self.kerasTrainModel(Epochs,Batch_size,Verbose)
+        else:
+            print("Please load data into model first using model.loadData(NetData)")
         
-    def channelOrderingFormat(self,Feat_train,Feat_test,img_rows,img_cols):
+        
+    def predictModel(self,testData):
         if self.backend== 'keras':
-            return self.kerasChannelOrderingFormat(Feat_train,Feat_test,img_rows,img_cols)
+            return self.kerasPredictModel(testData)
 
+    def summary(self):
+        if self.backend== 'keras':
+            return self.model.summary()
+    
+    def gpuCheck(self):
+        if self.backend== 'keras':
+            keras.backend.tensorflow_backend._get_available_gpus()
+            
 ##################################       
         
 ### Keras Backend ############
@@ -139,9 +160,11 @@ class NetModel:
     def kerasCompileModel(self,Optimizer,Loss,Metrics):
         self.model.compile(optimizer=Optimizer, loss=Loss, metrics=Metrics)
         
-    def kerasTrainModel(self,features,labels,Epochs,BatchSize,Verbose):    
-        return self.model.fit(features, labels, batch_size=BatchSize,epochs=Epochs, verbose=Verbose)
-      
+    def kerasTrainModel(self,Epochs,BatchSize,Verbose):
+        return self.model.fit(self.netData.X_train, self.netData.y_train, validation_data=(self.netData.X_test,self.netData.y_test), batch_size=BatchSize,epochs=Epochs, verbose=Verbose)
+
+    def kerasPrecictModel(self,testData):
+        return self.model.predict(testData)
            
 
     

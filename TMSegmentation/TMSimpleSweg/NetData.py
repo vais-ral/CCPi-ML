@@ -7,6 +7,7 @@ Created on Thu Aug  9 13:26:22 2018
 import math
 import numpy as np
 import keras
+
 class NetData:
 
     def __init__(self,features,labels,Shuffle=True,Rebalance = 0.0, Split_Ratio = 0.7):
@@ -19,12 +20,12 @@ class NetData:
         if Rebalance != None:
             self.X_train,self.y_train = self.reBalanceData(self.X_train,self.y_train,Rebalance)
 
-    def channelOrderingFormatTrain(self,img_rows,img_cols):
-        self.X_train,self.y_train,input_shape = self.channelOrderingFormat(self.X_train,self.y_train,X_train,self.y_train,img_rows,img_cols)
+    def channelOrderingFormatFeatures(self,img_rows,img_cols):
+        self.X_train,self.X_test,input_shape = self.channelOrderingFormat(self.X_train,self.X_test,img_rows,img_cols)
         return input_shape
         
-    def channelOrderingFormatTest(self,img_rows,img_cols):
-        self.X_test, self.y_test,input_shape = self.channelOrderingFormat(self.X_test, self.y_test,img_rows,img_cols)
+    def channelOrderingFormatLabels(self,img_rows,img_cols):
+        self.y_train, self.y_test,input_shape = self.channelOrderingFormat(self.y_train, self.y_test,img_rows,img_cols)
         return input_shape
 
     def channelOrderingFormat(self,Feat_train,Feat_test,img_rows,img_cols):
