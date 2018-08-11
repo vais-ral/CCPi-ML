@@ -10,7 +10,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import keras.backend as K
 from NetData import NetData
-from model.losses import bce_dice_loss, dice_loss, weighted_bce_dice_loss, weighted_dice_loss, dice_coeff
+#from model.losses import bce_dice_loss, dice_loss, weighted_bce_dice_loss, weighted_dice_loss, dice_coeff
 
 class NetModel:
 
@@ -55,11 +55,13 @@ class NetModel:
 #    """
 #CANT HAVE FLATTERN AS FIRST LAYER YET    
     
-    def __init__(self,Network,Backend):
+    def __init__(self,Network,Backend,netData = None):
         
         self.backend = Backend
         self.history = None
         self.netData = None
+
+        #three types of model initilisation, from custom dictionary object, Empty Model, Direct Model Input
         if type(Network) == dict:
             self.input = Network["Input"]
             self.hiddenLayers = Network["HiddenLayers"]
@@ -68,7 +70,10 @@ class NetModel:
             print("Empty Network Created,use model.loadModel(path,custom_object) function to load model.")
         else:# type(Network) == type(keras.engine.training.Model):
             self.model = Network
-    
+
+        if netData!=None:
+            self.loadData(netData)
+            
     def loadData(self,netDataObj):
         self.netData = netDataObj  
     
@@ -91,8 +96,12 @@ class NetModel:
         if self.backend== 'keras':
             self.kerasCompileModel(Optimizer,Loss,Metrics)
                 
-    def trainModel(self,Epochs = 100,Batch_size =1, Verbose = 2):
+    def trainModel(self,Epochs = 100,Batch_size =None, Verbose = 2):
         if self.netData != None:
+            #If batch size is none set batch size ot size of training dataset
+            if Batch_size is None:
+                Batch_size = self.netData.X_train.shape[0]
+            # Training should return dictionary of loss ['loss'] and cross validation loss ['val_loss'] 
             if self.backend== 'keras':
                 self.history = self.kerasTrainModel(Epochs,Batch_size,Verbose)
         else:
@@ -101,7 +110,7 @@ class NetModel:
         
     def predictModel(self,testData):
         if self.backend== 'keras':
-            return self.kerasPredictModel(testData)
+            return self.kerasPrecictModel(testData)
 
     def summary(self):
         if self.backend== 'keras':
@@ -110,7 +119,29 @@ class NetModel:
     def gpuCheck(self):
         if self.backend== 'keras':
             keras.backend.tensorflow_backend._get_available_gpus()
-            
+    
+    def getHistory(self):
+        return self.history
+
+    def plotLearningCurve(self):
+
+        loss = []
+        val_loss = []
+
+        if self.backend== 'keras':
+            loss,val_loss = self.kerasGetHistory()
+
+        epochs = np.arange(0,len(loss),1)
+
+        plt.plot(epochs,loss,label="Training Data")
+        plt.plot(epochs,val_loss,label="Validation Data")
+        plt.xlabel('Epoch')
+        plt.ylabel('Loss')
+        plt.legend()
+
+        plt.show()
+
+
 ##################################       
         
 ### Keras Backend ############
@@ -155,18 +186,19 @@ class NetModel:
                         layers.append(keras.layers.Flatten())
             return keras.Sequential(layers)               
 
-            
 
     def kerasCompileModel(self,Optimizer,Loss,Metrics):
         self.model.compile(optimizer=Optimizer, loss=Loss, metrics=Metrics)
         
     def kerasTrainModel(self,Epochs,BatchSize,Verbose):
+        print(self.netData.X_train.shape,self.netData.X_test.shape, self.netData.y_train.shape,self.netData.y_test.shape)
         return self.model.fit(self.netData.X_train, self.netData.y_train, validation_data=(self.netData.X_test,self.netData.y_test), batch_size=BatchSize,epochs=Epochs, verbose=Verbose)
 
     def kerasPrecictModel(self,testData):
         return self.model.predict(testData)
            
-
+    def kerasGetHistory(self):
+        return self.history.history['loss'],self.history.history['val_loss']
     
 
 
@@ -268,37 +300,3 @@ class NetModel:
                         layers.append(keras.layers.Flatten())
             return torch.nn.Sequential(*layers)
 """
-#Save Model
-#def saveModel(model,name):
-#    
-#    save = "d"
-#    
-#    while(save != "y" or save != "n"):
-#
-#        save = input("Do you want to save the model (y/n)?")
-#    
-#        if save == "y":
-#            model.save(name)
-#            break
-#        elif save == "n":
-#            break
-#
-##Generate new model or save model
-#def loadOrGenModel(input_shape,name):
-#   
-#    load = "d"
-#    
-#    while(load != "y" or load != "n"):
-#
-#        load = input("Load existing model (y/n)?")
-#    
-#        if load == "y":
-#            return model.loadModel(name)
-#        elif load == "n":  
-#            return buildModel(input_shape,1)
-#          
-
-#Add check for input shape channel thing
-        
-
-

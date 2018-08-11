@@ -15,38 +15,52 @@ import tensorflow as tf
 import keras
 from model.losses import bce_dice_loss, dice_loss, weighted_bce_dice_loss, weighted_dice_loss, dice_coeff
 
-"""
+
 net = {"Input":(4),
        
        "HiddenLayers":[
             {"Type": 1,
-            "Width": 25,
+            "Width": 4,
             "Activation": "tanh"
             },
             {"Type": 1,
-            "Width": 16,
+            "Width": 3,
+            "Activation": "tanh"
+            },
+            {"Type": 1,
+            "Width": 1,
             "Activation": "sigmoid"
             }]
 
        }
-"""
 
-features = np.load(r'/mnt/fileShare/flower_Feat.npy')
-labels = np.load(r'/mnt/fileShare/flower_Labels.npy')
+layers = []
+layers.append(keras.layers.Dense(4,input_dim=(4),kernel_initializer='normal', activation="tanh"))
+layers.append(keras.layers.Dense(3,kernel_initializer='normal', activation="tanh"))
+layers.append(keras.layers.Dense(1,kernel_initializer='normal', activation="sigmoid"))
 
-netData = NetData(features,labels,Shuffle=True,Rebalance=None,Split_Ratio = 0.7)
+modelNet = keras.Sequential(layers)
 
-netData.channelOrderingFormatFeatures(256,256)
-netData.channelOrderingFormatLabels(256,256)
-unet.get_unet_256(input_shape=(256,256,1))
-model = NetModel(unet.get_unet_256(input_shape=(256,256,1)),'keras')
 
-model.loadData(netData)
+
+features = np.load(r'/home/jake/Documents/Programming/Python/CCPi-ML/TensorFlow/AstroMl/AstroML_Data/AstroML_Data_shuffled.npy')[:,[1,0,2,3]]
+labels = np.load(r'/home/jake/Documents/Programming/Python/CCPi-ML/TensorFlow/AstroMl/AstroML_Data/AstroML_Labels_shuffled.npy')
+print(features.shape)
+netData = NetData(features,labels,Shuffle=True,Rebalance=0.1,Split_Ratio = 0.7)
+
+#unet.get_unet_256(input_shape=(256,256,1))
+
+model = NetModel(modelNet,'keras', netData)
+
 #model.loadModel('modelSave.h5',{ 'bce_dice_loss': bce_dice_loss,'dice_coeff':dice_coeff })
-print(model.summary())
-model.compileModel(keras.optimizers.RMSprop(lr=0.0001),bce_dice_loss, [dice_coeff])
-model.trainModel(Epochs = 100,Batch_size = 100, Verbose = 2)
 
+
+#model.compileModel(keras.optimizers.RMSprop(lr=0.0001),'binary_crossentropy', ['binary_accuracy', 'categorical_accuracy'])
+
+model.compileModel(keras.optimizers.Adam(lr=0.001),'binary_crossentropy', ['binary_accuracy', 'categorical_accuracy'])
+model.trainModel(Epochs = 10,Batch_size = 100, Verbose = 2)
+
+model.plotLearningCurve()
 
 #%%
 #model.saveModel('modelSave.h5')
@@ -66,4 +80,3 @@ model.trainModel(Epochs = 100,Batch_size = 100, Verbose = 2)
 #ax_loss.imshow((predictions[0].reshape(256,256)))
 #plt.show()
 #%%
-model.loadModel('modelSave.h5')

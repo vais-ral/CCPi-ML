@@ -10,15 +10,45 @@ import keras
 
 class NetData:
 
-    def __init__(self,features,labels,Shuffle=True,Rebalance = 0.0, Split_Ratio = 0.7):
+    """ Initialise with two numpy arrays for features and labels"""
 
-        if Shuffle:
-            features ,labels = self.shuffleData(features,labels)
 
-        self.X_train,self.X_test,self.y_train,self.y_test = self.splitData(features,labels,Split_Ratio)
+    def __init__(self,Features = None,Labels = None,Shuffle=True,Rebalance = 0.0, Split_Ratio = 0.7,Channel_Features = None, Channel_Labels = None):
 
-        if Rebalance != None:
-            self.X_train,self.y_train = self.reBalanceData(self.X_train,self.y_train,Rebalance)
+        self.Shuffle = Shuffle
+        self.Rebalance = Rebalance
+        self.Split_Ratio = Split_Ratio
+
+        if Features is not None and Labels is not None:
+
+            if Shuffle:
+                Features ,Labels = self.shuffleData(Features,Labels)
+
+            self.X_train,self.X_test,self.y_train,self.y_test = self.splitData(Features,Labels,Split_Ratio)
+
+            if Rebalance != None:
+                self.X_train,self.y_train = self.reBalanceData(self.X_train,self.y_train,Rebalance)
+
+            if Channel_Features != None:
+                self.channelOrderingFormatFeatures(Channel_Features[0],Channel_Features[1])
+
+            if Channel_Labels != None:
+                self.channelOrderingFormatLabels(Channel_Labels[0],Channel_Labels[1])
+
+        else:
+            print("Empty NetData Object Created. Use Manual NetData.loadFeatTraining(), NetData.loadFeatTest(), NetData.loadLabelTraining(), NetData.loadLabelTest() Methods ")
+
+    def loadFeatTraining(self,data):
+        self.X_train = data
+
+    def loadFeatTest(self,data):
+        self.X_test = data
+
+    def loadLabelTraining(self,data):
+        self.y_train = data
+
+    def loadLabelTest(self,data):
+        self.y_test = data
 
     def channelOrderingFormatFeatures(self,img_rows,img_cols):
         self.X_train,self.X_test,input_shape = self.channelOrderingFormat(self.X_train,self.X_test,img_rows,img_cols)
@@ -69,6 +99,25 @@ class NetData:
         labels= labels[ran]
         
         return features,labels
+
+    def saveData(self,path):
+        np.save(path+'_Shuffle_'+str(self.Shuffle)+'Rebalance_'+str(self.Rebalance)+'Split_Ratio_'+str(self.Split_Ratio)+'_X_train',self.X_train)
+        np.save(path+'_Shuffle_'+str(self.Shuffle)+'Rebalance_'+str(self.Rebalance)+'Split_Ratio_'+str(self.Split_Ratio)+'_X_test',self.X_test)
+        np.save(path+'_Shuffle_'+str(self.Shuffle)+'Rebalance_'+str(self.Rebalance)+'Split_Ratio_'+str(self.Split_Ratio)+'_y_train',self.y_train)
+        np.save(path+'_Shuffle_'+str(self.Shuffle)+'Rebalance_'+str(self.Rebalance)+'Split_Ratio_'+str(self.Split_Ratio)+'_y_test',self.y_test)
+
+    def oneHot(self,outSize):
+        self.y_train = self.convertOneHot(self.y_train,outSize)
+        self.y_test = self.convertOneHot(self.y_test,outSize)
+
+    def convertOneHot(self,labels,out):
+        label = np.zeros((labels.shape[0],out),dtype=np.float32)
+        for i in range(0,len(labels)):
+            if labels[i] == 0:
+                label[i,:] = np.array([0,1])
+            else:
+                label[i,:] = np.array([1,0])
+        return label
 
     def imagePadArray(self,image,segment):
         return np.array(np.pad(image,segment,'constant', constant_values=0))
