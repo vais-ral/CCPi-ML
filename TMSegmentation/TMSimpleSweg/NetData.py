@@ -89,7 +89,7 @@ class NetData:
 
     def splitData(self,features,labels,ratio):
         length = features.shape[0]
-        return features[:int(length*ratio)],features[:int(length*(1-ratio))],labels[:int(length*ratio)],labels[:int(length*(1-ratio))]
+        return features[:int(length*ratio)],features[int(length*ratio):],labels[:int(length*ratio)],labels[int(length*ratio):]
 
     def shuffleData(self,features,labels):
         
