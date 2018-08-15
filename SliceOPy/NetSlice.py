@@ -9,8 +9,7 @@ import keras
 import numpy as np
 import matplotlib.pyplot as plt
 import keras.backend as K
-from NetData import NetData
-#from model.losses import bce_dice_loss, dice_loss, weighted_bce_dice_loss, weighted_dice_loss, dice_coeff
+from SliceOPy import DataSlice#from model.losses import bce_dice_loss, dice_loss, weighted_bce_dice_loss, weighted_dice_loss, dice_coeff
 
 class NetModel:
 
@@ -200,19 +199,58 @@ class NetModel:
     def kerasGetHistory(self):
         return self.history.history['loss'],self.history.history['val_loss']
     
+    def contourPlot(self):
+        
+        x1_min_tr = np.amin(self.netData.X_train[:,0])
+        x1_max_tr = np.amax(self.netData.X_train[:,0])
+        x2_min_tr = np.amin(self.netData.X_train[:,1])
+        x2_max_tr = np.amax(self.netData.X_train[:,1])  
+
+        x1_min_te = np.amin(self.netData.X_test[:,0])
+        x1_max_te = np.amax(self.netData.X_test[:,0])
+        x2_min_te = np.amin(self.netData.X_test[:,1])
+        x2_max_te = np.amax(self.netData.X_test[:,1]) 
+        
+        x1_min = 0
+        x1_max = 0
+        x2_min = 0
+        x2_max = 0
+        
+        if x1_min_tr > x1_min_te:
+            x1_min = x1_min_te
+        else:
+            x1_min = x1_min_tr
+
+        print(x2_min,x2_min_tr,x2_min_te)
+        if x1_max_tr > x1_max_te:
+            x1_max = x1_max_tr
+        else:
+            x1_max = x1_max_te
 
 
+        if x2_min_tr > x2_min_te:
+            x2_min = x2_min_te
+        else:
+            x2_min = x2_min_tr
+        print(x2_min,x2_min_tr,x2_min_te)
 
 
+        if x2_max_tr > x2_max_te:
+            x2_max = x1_max_tr
+        else:
+            x2_max = x2_max_te
+            
+        xx, yy = np.meshgrid(np.arange(x1_min,x1_max,0.01),np.arange(x2_min,x2_max,0.01))            
 
-
-
-
-
-
-
-
-
+        z = self.predictModel(np.c_[xx.ravel(),yy.ravel()])
+        z = z.reshape(xx.shape)
+        
+        plt.contour(xx,yy,z)
+        plt.scatter(self.netData.X_train[:,0],self.netData.X_train[:,1],c=self.netData.y_train)
+        plt.xlabel('x1')
+        plt.ylabel('x2')
+        plt.colorbar()
+        plt.show()
 
 
 

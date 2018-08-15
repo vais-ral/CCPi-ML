@@ -38,6 +38,12 @@ class NetData:
         else:
             print("Empty NetData Object Created. Use Manual NetData.loadFeatTraining(), NetData.loadFeatTest(), NetData.loadLabelTraining(), NetData.loadLabelTest() Methods ")
 
+
+    def featureColumn(self,columns):
+        self.X_test = self.X_test[:,columns]
+        self.X_train = self.X_train[:,columns]
+
+
     def loadFeatTraining(self,data):
         self.X_train = data
 
@@ -76,7 +82,6 @@ class NetData:
             total = len(y)
             total_one = len(ones)
             multiplier = int(math.ceil((total/total_one)*Multip))
-            print(multiplier,ones.shape,x.shape)
             for i in range(multiplier):
                 x = np.insert(x,1,ones,axis=0)
                 y = np.insert(y,1,y_ones,axis=0)
@@ -118,6 +123,9 @@ class NetData:
             else:
                 label[i,:] = np.array([1,0])
         return label
+    
 
+        
     def imagePadArray(self,image,segment):
         return np.array(np.pad(image,segment,'constant', constant_values=0))
+    
