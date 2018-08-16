@@ -5,7 +5,7 @@ Created on Wed Aug 15 14:51:18 2018
 @author: lhe39759
 """
 import sys
-sys.path.append(r'C:\Users\lhe39759\Documents\GitHub\CCPi-ML/')
+sys.path.append(r'$HOME\CCPi-ML/')
 from SliceOPy import NetSlice, DataSlice
 import keras
 import numpy as np
