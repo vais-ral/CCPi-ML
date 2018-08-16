@@ -8,6 +8,8 @@ import sys
 sys.path.append(r'C:\Users\lhe39759\Documents\GitHub\CCPi-ML/')
 from SliceOPy import NetSlice, DataSlice
 import keras
+import numpy as np
+from astroML.utils import completeness_contamination
 
 featCols = [[1,0],[1,0,2],[1,0,2,3]]
 nets = []
@@ -17,12 +19,16 @@ for col in range(0,3):
     model = keras.Sequential([
             keras.layers.Dense(26,input_dim =col+2, activation="tanh"),
             keras.layers.Dense(1, activation ="sigmoid")
-            
             ])
     
     
     nets.append(NetSlice.NetModel(model,'keras'))
-    
+
+
+X_test_unbalanced = np.load('AstroML_X_Test_Shuffle_Split_0_7.npy')
+y_test_unbalanced = np.load('AstroML_Y_Test_Shuffle_Split_0_7.npy')
+cont = []
+comp = []
 for col in range(0,3):
     
     data = DataSlice.NetData(Features = None,Labels = None)
@@ -32,15 +38,21 @@ for col in range(0,3):
     data.loadLabelTest( np.load('AstroML_Y_Test_Shuffle_Split_0_7_Rebalance_1.npy'))
     data.featureColumn(featCols[col])
     nets[col].loadData(data)
-    #nets[col].loadModel('astro_sliceOPy_'+str(col)+'.h5',None)
-    nets[col].compileModel(keras.optimizers.Adam(lr=0.003),'binary_crossentropy', ['binary_accuracy', 'categorical_accuracy'])
-    nets[col].trainModel(Epochs = 1000, Verbose = 2)
+    nets[col].loadModel('astro_sliceOPy_'+str(col)+'.h5',None)
+    nets[col].compileModel(keras.optimizers.Adam(lr=0.001),'binary_crossentropy', ['binary_accuracy', 'categorical_accuracy'])
+    nets[col].trainModel(Epochs = 5000, Verbose = 1)
+	
+    predictions = np.around(nets[col].predictModel(X_test_unbalanced[:,featCols[col]]).reshape(nets[col].predictModel(X_test_unbalanced[:,featCols[col]]).shape[0],))
+    completeness, contamination = completeness_contamination(predictions,(y_test_unbalanced))
+    cont.append(contamination)
+    comp.append(completeness)
+
 
 #%%
     
 for i in range(0,3):
     nets[i].saveModel('astro_sliceOPy_'+str(i)+'.h5')
 #%%
-    
-nets[0].contourPlot()
-    
+
+for i in range(0,3):
+    print(i,"Completeness",comp[i],"Contamination",cont[i])
