@@ -91,10 +91,11 @@ def lossPlot(loss,label):
 features, labels = generateGaussianHillValley(-5.0,5.0,-5.0,5.0,100,9)
 #plotGaussian(labels,-5.0,5.0,-5.0,5.0,100,200,"Hill Valley")
 
-layer1Neurons = [1,2,3,4,5,7,9,12,15,20,30,40,50]
-layer2Neurons = [0,1,2,3,4,5,7,9,12,15]
+#layer1Neurons = [1,2,3,4,5,7,9,12,15,20,30,40,50]
+#layer2Neurons   [0,1,2,3,4,5,7,9,12,15]
 
-
+layer1Neurons = [50]
+layer2Neurons  = [15]
 history = []
 surface = []
 netDetails = []
@@ -120,13 +121,13 @@ for layer2 in layer2Neurons:
         model = keras.Sequential(layers)
         print(model.summary())
         model.compile(optimizer=keras.optimizers.Adam(lr=0.1), loss='mean_squared_error', metrics=['binary_accuracy', 'categorical_accuracy'])
-        history1 = model.fit(features, labels, batch_size=features.shape[0],epochs=100, verbose=0)
+        history1 = model.fit(features, labels, batch_size=features.shape[0],epochs=100, verbose=1)
         
         model.compile(optimizer=keras.optimizers.Adam(lr=0.01), loss='mean_squared_error', metrics=['binary_accuracy', 'categorical_accuracy'])
-        history2 = model.fit(features, labels, batch_size=features.shape[0],epochs=2000, verbose=0)
+        history2 = model.fit(features, labels, batch_size=features.shape[0],epochs=2000, verbose=1)
         
         model.compile(optimizer=keras.optimizers.Adam(lr=0.001), loss='mean_squared_error', metrics=['binary_accuracy', 'categorical_accuracy'])
-        history3 = model.fit(features, labels, batch_size=features.shape[0],epochs=5000, verbose=0)
+        history3 = model.fit(features, labels, batch_size=features.shape[0],epochs=5000, verbose=1)
         
         historyitem = np.append(np.array(history1.history['loss']),np.array(history2.history['loss']))
         historyitem = np.append(np.array(historyitem),np.array(history3.history['loss']))

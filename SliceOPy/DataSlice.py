@@ -13,27 +13,46 @@ class NetData:
     """ Initialise with two numpy arrays for features and labels"""
 
 
-    def __init__(self,Features = None,Labels = None,Shuffle=True,Rebalance = 0.0, Split_Ratio = 0.7,Channel_Features = None, Channel_Labels = None):
-
+    def __init__(self,Features = None,Labels = None,Shuffle=True,Rebalance = 0.0, Split_Ratio = 0.7,Channel_Features = None, Channel_Labels = None,info=True):
+        
+        self.info = True
         self.Shuffle = Shuffle
         self.Rebalance = Rebalance
         self.Split_Ratio = Split_Ratio
 
         if Features is not None and Labels is not None:
 
+            if info:
+                print("-----------------------------DataSlice------------------------")
+                print("Number of Features:", Features.shape[0], "Number of Labels:", Labels.shape[0])
+                print("Feature Shape:", Features.shape[1:])
+            
             if Shuffle:
                 Features ,Labels = self.shuffleData(Features,Labels)
+                if info:
+                    print("Data Shuffled")
 
             self.X_train,self.X_test,self.y_train,self.y_test = self.splitData(Features,Labels,Split_Ratio)
 
             if Rebalance != None:
                 self.X_train,self.y_train = self.reBalanceData(self.X_train,self.y_train,Rebalance)
+                if info:    
+                    print("Data Rebalnced, Ratio:",Rebalance)
+            if info:  
+                print("Training Data:",self.X_train.shape[0])
+                print("Test Data:",self.X_test.shape[0])
+
 
             if Channel_Features != None:
                 self.channelOrderingFormatFeatures(Channel_Features[0],Channel_Features[1])
-
+                if info:
+                    print("Channel Ordering Features, New Feature Shape:", self.X_train.shape[1:])
             if Channel_Labels != None:
                 self.channelOrderingFormatLabels(Channel_Labels[0],Channel_Labels[1])
+                if info:
+                    print("Channel Ordering Label, New Label Shape:", self.X_train.shape[1:])
+            if info:  
+                print("-------------------------------------------------------------")
 
         else:
             print("Empty NetData Object Created. Use Manual NetData.loadFeatTraining(), NetData.loadFeatTest(), NetData.loadLabelTraining(), NetData.loadLabelTest() Methods ")
