@@ -17,12 +17,12 @@ def lossPlot(loss,label):
     plt.legend()
 surface = np.load('surface.npy')
 
-#plotGaussian(surface[0],-5.0,5.0,-5.0,5.0,100,200,"Hill Valley")
+plotGaussian(surface[0],-5.0,5.0,-5.0,5.0,100,200,"Hill Valley")
 
 loss = np.load('history.npy')
 print(loss[0])
-lossPlot(loss[0],"loss")
-plt.show()
+#lossPlot(loss[0],"loss")
+#plt.show()
 #
 #dets = np.load('netDetails.npy')
 #params = np.load('params.npy')

@@ -9,7 +9,9 @@ import keras
 import numpy as np
 import matplotlib.pyplot as plt
 import keras.backend as K
-from SliceOPy import DataSlice#from model.losses import bce_dice_loss, dice_loss, weighted_bce_dice_loss, weighted_dice_loss, dice_coeff
+import sys
+sys.path.append(r'C:\Users\lhe39759\Documents\GitHub\CCPi-ML/')
+from SliceOPy import  DataSlice
 
 class NetModel:
 
