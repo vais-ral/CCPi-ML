@@ -8,7 +8,7 @@ import math
 import numpy as np
 import keras
 
-class NetData:
+class DataSlice:
 
     """ Initialise with two numpy arrays for features and labels"""
 
@@ -55,7 +55,7 @@ class NetData:
                 print("-------------------------------------------------------------")
 
         else:
-            print("Empty NetData Object Created. Use Manual NetData.loadFeatTraining(), NetData.loadFeatTest(), NetData.loadLabelTraining(), NetData.loadLabelTest() Methods ")
+            print("Empty DataSlice Object Created. Use Manual DataSlice.loadFeatTraining(), DataSlice.loadFeatTest(), DataSlice.loadLabelTraining(), DataSlice.loadLabelTest() Methods ")
 
 
     def featureColumn(self,columns):

@@ -4,16 +4,16 @@ Created on Thu Aug  9 10:19:08 2018
 
 @author: lhe39759
 """
-import tensorflow as tf
+#import tensorflow as tf
 import keras
 import numpy as np
 import matplotlib.pyplot as plt
 import keras.backend as K
 import sys
-sys.path.append(r'C:\Users\lhe39759\Documents\GitHub\CCPi-ML/')
+sys.path.append(r'$HOME\Documents/Programming/Python/CCPi-ML/')
 from SliceOPy import  DataSlice
 
-class NetModel:
+class NetSlice:
 
 #""" Model Building
 #    Choice of backends are: 'keras' 
@@ -56,11 +56,12 @@ class NetModel:
 #    """
 #CANT HAVE FLATTERN AS FIRST LAYER YET    
     
-    def __init__(self,Network,Backend,netData = None):
+    def __init__(self,Network,Backend,dataSlice = None):
         
+
         self.backend = Backend
-        self.history = None
-        self.netData = None
+        self.history = {"loss":[],"val_loss":[]}
+        self.dataSlice = None
 
         #three types of model initilisation, from custom dictionary object, Empty Model, Direct Model Input
         if type(Network) == dict:
@@ -72,11 +73,11 @@ class NetModel:
         else:# type(Network) == type(keras.engine.training.Model):
             self.model = Network
 
-        if netData!=None:
-            self.loadData(netData)
-            
-    def loadData(self,netDataObj):
-        self.netData = netDataObj  
+        if dataSlice!=None:
+            self.loadData(dataSlice)
+           
+    def loadData(self,dataSliceObj):
+        self.dataSlice = dataSliceObj  
     
     def buildModel(self):
         if self.backend == 'keras':
@@ -98,16 +99,58 @@ class NetModel:
             self.kerasCompileModel(Optimizer,Loss,Metrics)
                 
     def trainModel(self,Epochs = 100,Batch_size =None, Verbose = 2):
-        if self.netData != None:
+
+        if self.dataSlice != None:
             #If batch size is none set batch size ot size of training dataset
             if Batch_size is None:
-                Batch_size = self.netData.X_train.shape[0]
+                Batch_size = self.dataSlice.X_train.shape[0]
             # Training should return dictionary of loss ['loss'] and cross validation loss ['val_loss'] 
             if self.backend== 'keras':
-                self.history = self.kerasTrainModel(Epochs,Batch_size,Verbose)
+                loss, val_loss = self.kerasTrainModel(Epochs,Batch_size,Verbose)
+                self.history['loss']+= loss
+                
+                if val_loss != None:
+                    self.history['val_loss']+= val_loss
+                else: 
+                    self.history['val_loss'] = None
+
         else:
-            print("Please load data into model first using model.loadData(NetData)")
+            print("Please load data into model first using model.loadData(dataSlice)")
         
+    def trainRoutine(self,routineSettings,trainRoutine):
+        """            
+               routineSettings = {
+                "CompileAll":True,
+                "SaveAll":"model.h5" or None
+                }
+
+            trainRoutine = [{
+                "Compile":[Optimizer,Loss,Metrics],
+                "Train":[Epochs,Batch_Size,Verbose]
+                }]
+        
+        """
+        if len(trainRoutine) == 0 or trainRoutine==None:
+            print("Input Valid Train Routine")
+            return 
+            
+        compileEach = routineSettings["CompileAll"]
+        saveAll = routineSettings["SaveAll"]
+
+        initCompile = trainRoutine[0]['Compile']
+        self.compileModel(initCompile[0],initCompile[1],initCompile[2])
+
+        for routine in trainRoutine:
+
+            if compileEach and routine != trainRoutine[0]:
+                compSetting = routine['Compile']
+                self.compileModel(compSetting[0],compSetting[1],compSetting[2])
+            
+            trainSetting = routine['Train']
+            self.trainModel(trainSetting[0],trainSetting[1],trainSetting[2])
+
+            if saveAll != None:
+                self.saveModel(saveAll)
         
     def predictModel(self,testData):
         if self.backend== 'keras':
@@ -124,6 +167,9 @@ class NetModel:
     def getHistory(self):
         return self.history
 
+    def clearHistory(self):
+        self.history = []
+
     def plotLearningCurve(self):
 
         loss = []
@@ -135,7 +181,10 @@ class NetModel:
         epochs = np.arange(0,len(loss),1)
 
         plt.plot(epochs,loss,label="Training Data")
-        plt.plot(epochs,val_loss,label="Validation Data")
+
+        if val_loss != None:
+            plt.plot(epochs,val_loss,label="Validation Data")
+
         plt.xlabel('Epoch')
         plt.ylabel('Loss')
         plt.legend()
@@ -192,26 +241,32 @@ class NetModel:
         self.model.compile(optimizer=Optimizer, loss=Loss, metrics=Metrics)
         
     def kerasTrainModel(self,Epochs,BatchSize,Verbose):
-        print(self.netData.X_train.shape,self.netData.X_test.shape, self.netData.y_train.shape,self.netData.y_test.shape)
-        return self.model.fit(self.netData.X_train, self.netData.y_train, validation_data=(self.netData.X_test,self.netData.y_test), batch_size=BatchSize,epochs=Epochs, verbose=Verbose)
+        history = self.model.fit(self.dataSlice.X_train, self.dataSlice.y_train, validation_data=(self.dataSlice.X_test,self.dataSlice.y_test), batch_size=BatchSize,epochs=Epochs, verbose=Verbose)
+        
+        if 'val_loss' in history.history:
+            return history.history['loss'], history.history['val_loss']
+        else:
+            return history.history['loss'], None
 
     def kerasPrecictModel(self,testData):
         return self.model.predict(testData)
            
     def kerasGetHistory(self):
-        return self.history.history['loss'],self.history.history['val_loss']
+        return self.history['loss'],self.history['val_loss']
+
+
     
     def contourPlot(self):
         
-        x1_min_tr = np.amin(self.netData.X_train[:,0])
-        x1_max_tr = np.amax(self.netData.X_train[:,0])
-        x2_min_tr = np.amin(self.netData.X_train[:,1])
-        x2_max_tr = np.amax(self.netData.X_train[:,1])  
+        x1_min_tr = np.amin(self.dataSlice.X_train[:,0])
+        x1_max_tr = np.amax(self.dataSlice.X_train[:,0])
+        x2_min_tr = np.amin(self.dataSlice.X_train[:,1])
+        x2_max_tr = np.amax(self.dataSlice.X_train[:,1])  
 
-        x1_min_te = np.amin(self.netData.X_test[:,0])
-        x1_max_te = np.amax(self.netData.X_test[:,0])
-        x2_min_te = np.amin(self.netData.X_test[:,1])
-        x2_max_te = np.amax(self.netData.X_test[:,1]) 
+        x1_min_te = np.amin(self.dataSlice.X_test[:,0])
+        x1_max_te = np.amax(self.dataSlice.X_test[:,0])
+        x2_min_te = np.amin(self.dataSlice.X_test[:,1])
+        x2_max_te = np.amax(self.dataSlice.X_test[:,1]) 
         
         x1_min = 0
         x1_max = 0
@@ -248,7 +303,7 @@ class NetModel:
         z = z.reshape(xx.shape)
         
         plt.contour(xx,yy,z)
-        plt.scatter(self.netData.X_train[:,0],self.netData.X_train[:,1],c=self.netData.y_train)
+        plt.scatter(self.dataSlice.X_train[:,0],self.dataSlice.X_train[:,1],c=self.dataSlice.y_train)
         plt.xlabel('x1')
         plt.ylabel('x2')
         plt.colorbar()
