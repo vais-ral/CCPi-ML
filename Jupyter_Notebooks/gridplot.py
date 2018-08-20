@@ -89,13 +89,13 @@ def lossPlot(loss,label):
 
 
 features, labels = generateGaussianHillValley(-5.0,5.0,-5.0,5.0,100,9)
-#plotGaussian(labels,-5.0,5.0,-5.0,5.0,100,200,"Hill Valley")
-
+plotGaussian(labels,-5.0,5.0,-5.0,5.0,100,200,"Hill Valley")
+#%%
 #layer1Neurons = [1,2,3,4,5,7,9,12,15,20,30,40,50]
 #layer2Neurons   [0,1,2,3,4,5,7,9,12,15]
 
-layer1Neurons = [50]
-layer2Neurons  = [15]
+layer1Neurons = [3]
+layer2Neurons  = [9]
 history = []
 surface = []
 netDetails = []
@@ -135,12 +135,12 @@ for layer2 in layer2Neurons:
         history.append(historyitem)
         z = model.predict(features)
         surface.append(z)
-        
+        plotGaussian(z,-5.0,5.0,-5.0,5.0,100,200,"Hill Valley")
         netDetailsItem.append(layer1)
         netDetailsItem.append(layer2)
         params.append(model.count_params())
 
-np.save('history.npy',np.array(history))
-np.save('surface.npy',np.array(surface))
-np.save('netDetails.npy',np.array(netDetails))
-np.save('params.npy',np.array(params))
+np.save('historytest.npy',np.array(history))
+np.save('surfacetest.npy',np.array(surface))
+np.save('netDetailstest.npy',np.array(netDetails))
+np.save('paramstest.npy',np.array(params))

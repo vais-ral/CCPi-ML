@@ -9,9 +9,12 @@ import keras
 import numpy as np
 import matplotlib.pyplot as plt
 import keras.backend as K
+import tensorflow as tf
 import sys
+import os
 sys.path.append(r'$HOME\Documents/Programming/Python/CCPi-ML/')
 from SliceOPy import  DataSlice
+import pickle
 
 class NetSlice:
 
@@ -83,20 +86,40 @@ class NetSlice:
             return self.kerasModelBackend()
  
     def loadModel(self,name,customObject):
+        #Get Current Working directory
+        dir_path = os.getcwd()+"\Model_Saves\\"+name
+        print(dir_path)
         if self.backend == 'keras':
             if customObject is not None:
-                self.model = keras.models.load_model(name,custom_objects=customObject)
+                self.model = keras.models.load_model(dir_path+".h5",custom_objects=customObject)
             else:
-                self.model = keras.models.load_model(name)                
+                self.model = keras.models.load_model(dir_path+".h5")                
+        
+        with open(dir_path+ '.pkl', 'rb') as f:
+            self.history = pickle.load(f)
         
     def saveModel(self,name):
+        #Get Current Working directory
+        dir_path = os.getcwd()+r"\Model_Saves/"
+        #Check if directory exisits, create if not
+        if not os.path.exists(dir_path):
+            os.makedirs(dir_path)
+        #Save model in directory
         if self.backend == 'keras':
-            self.model.save(name)
-
-    def compileModel(self,Optimizer, Loss, Metrics):
+            self.model.save(dir_path+name+".h5")
+        #Save history
+        
+        with open(dir_path+name+ '.pkl', 'wb') as f:
+            pickle.dump(self.history, f, pickle.HIGHEST_PROTOCOL)
+        
+    def compileModel(self,Optimizer=None, Loss=None, Metrics= None ,Model=None):
         if self.backend== 'keras':
-            self.kerasCompileModel(Optimizer,Loss,Metrics)
-                
+            self.kerasCompileModel(Optimizer,Loss,Metrics)            
+        #Tensor flow just reqires Model
+        if self.backend=='tensorflow':
+            self.tfCompileModel(Model)
+
+        
     def trainModel(self,Epochs = 100,Batch_size =None, Verbose = 2):
 
         if self.dataSlice != None:
@@ -106,12 +129,17 @@ class NetSlice:
             # Training should return dictionary of loss ['loss'] and cross validation loss ['val_loss'] 
             if self.backend== 'keras':
                 loss, val_loss = self.kerasTrainModel(Epochs,Batch_size,Verbose)
+                print(self.history['loss'],loss)
                 self.history['loss']+= loss
                 
                 if val_loss != None:
                     self.history['val_loss']+= val_loss
                 else: 
                     self.history['val_loss'] = None
+                
+            elif self.backend == 'tensorflow':
+                
+                self.tfTrainModel(Epochs,Batch_size,Verbose)
 
         else:
             print("Please load data into model first using model.loadData(dataSlice)")
@@ -137,33 +165,35 @@ class NetSlice:
         saveAll = routineSettings["SaveAll"]
 
         initCompile = trainRoutine[0]['Compile']
-        self.compileModel(initCompile[0],initCompile[1],initCompile[2])
+        self.compileModel(Optimizer=initCompile[0],Loss=initCompile[1],Metrics=initCompile[2])
 
         for routine in trainRoutine:
 
             if compileEach and routine != trainRoutine[0]:
                 compSetting = routine['Compile']
-                self.compileModel(compSetting[0],compSetting[1],compSetting[2])
-            
+                self.compileModel(Optimizer=compSetting[0],Loss=compSetting[1],Metrics=compSetting[2])
+            self.model.summary()
             trainSetting = routine['Train']
             self.trainModel(trainSetting[0],trainSetting[1],trainSetting[2])
 
             if saveAll != None:
                 self.saveModel(saveAll)
         
+        
     def generativeDataTrain(self,dataGenFunc, BatchSize=1, Epochs=100):
 
         for epoch in range(1,Epochs):
             data = []
-            for i in len(1,BatchSize):
+            for i in range(0,BatchSize):
                 item = dataGenFunc()
-
                 data.append(np.array(item))
             
             data = np.array(data)
-
-            self.model.train_on_batch(data[:,0],data[:,1])
-            
+            print(data.shape)
+            feat , labels,shape = self.channelOrderingFormat( np.array(data[0][0]), np.array(data[0][1]),256,256)
+            print(feat.shape,labels.shape)
+            loss =self.model.train_on_batch(feat,labels)
+            print("loss",loss)
 
     def predictModel(self,testData):
         if self.backend== 'keras':
@@ -210,7 +240,17 @@ class NetSlice:
 ### Keras Backend ############
 
 ##################################
-
+    def channelOrderingFormat(self,Feat_train,Feat_test,img_rows,img_cols):
+        if keras.backend.image_data_format() == 'channels_first':
+            Feat_train = Feat_train.reshape(Feat_train.shape[0], 1, img_rows, img_cols)
+            Feat_test = Feat_test.reshape(Feat_test.shape[0], 1, img_rows, img_cols)
+            input_shape = (1, img_rows, img_cols)
+        else:
+            Feat_train = Feat_train.reshape(Feat_train.shape[0], img_rows, img_cols, 1)
+            Feat_test = Feat_test.reshape(Feat_test.shape[0], img_rows, img_cols, 1)
+            input_shape = (img_rows, img_cols, 1)  
+        return Feat_train, Feat_test, input_shape
+    
     def kerasModelBackend(self):
             layers = []
             #Input layer
@@ -324,14 +364,43 @@ class NetSlice:
 
 
 
+###################################      
+        
+### TensorFlow Backend ############
+
+###################################
+        
+    def tfCompileModel(self,Model):
+        #tf.InteractiveSession.close()
+        self.Session = tf.InteractiveSession()
+        self.Optimizer,self.Loss,self.Correct_Prediction, self.Metrics ,self.x,self.y= Model()
+        
+    def tfTrainModel(self,Epochs,BatchSize,Verbose):
+        
+        init_op = tf.global_variables_initializer()
+#        with self.Session as sess:
+            # initialise the variables
+        self.Session.run(init_op)
+        total_batch = int(self.dataSlice.X_train.shape[0]/BatchSize)
+        for epoch in range(Epochs):
+            avg_cost = 0
+            for i in range(total_batch):
+                
+                batch_x, batch_y = self.dataSlice.getRandomBatch(BatchSize)
+                
+                _, c = self.Session.run([self.Optimizer, self.Loss], 
+                                feed_dict={self.x: batch_x, self.y: batch_y})
+                avg_cost += c / total_batch
+            test_acc = self.Session.run(self.Metrics, 
+                           feed_dict={self.x: self.dataSlice.X_test, self.y: self.dataSlice.y_test})
+            print("Epoch:", str(epoch + 1), "cost =", "{:.3f}".format(avg_cost), "test accuracy: ","{:.3f}".format(test_acc))
+    
+        print("\nTraining complete!")
+        print(self.Session.run(self.Metrics, feed_dict={self.x: self.dataSlice.X_test, self.y: self.dataSlice.y_test}))
 
 
 
-
-
-
-
-
+        self.Session.close()
 
 
 
