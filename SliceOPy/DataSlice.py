@@ -148,3 +148,9 @@ class DataSlice:
     def imagePadArray(self,image,segment):
         return np.array(np.pad(image,segment,'constant', constant_values=0))
     
+    def getRandomBatch(self,batchSize):
+        
+        ran = np.arange(self.X_train.shape[0])
+        np.random.shuffle(ran)
+        
+        return self.X_train[ran][:batchSize],self.y_train[ran][:batchSize]
