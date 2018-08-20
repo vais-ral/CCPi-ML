@@ -58,7 +58,6 @@ class NetSlice:
     
     def __init__(self,Network,Backend,dataSlice = None):
         
-
         self.backend = Backend
         self.history = {"loss":[],"val_loss":[]}
         self.dataSlice = None
@@ -152,6 +151,20 @@ class NetSlice:
             if saveAll != None:
                 self.saveModel(saveAll)
         
+    def generativeDataTrain(self,dataGenFunc, BatchSize=1, Epochs=100):
+
+        for epoch in range(1,Epochs):
+            data = []
+            for i in len(1,BatchSize):
+                item = dataGenFunc()
+
+                data.append(np.array(item))
+            
+            data = np.array(data)
+
+            self.model.train_on_batch(data[:,0],data[:,1])
+            
+
     def predictModel(self,testData):
         if self.backend== 'keras':
             return self.kerasPrecictModel(testData)
