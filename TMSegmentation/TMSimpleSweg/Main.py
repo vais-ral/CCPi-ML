@@ -25,7 +25,7 @@ import matplotlib.pyplot as plt
 
 import numpy as np
 import sys
-sys.path.append(r'C:\Users\lhe39759\Documents\GitHub\CCPi-ML/')
+sys.path.append(r'C:\Users\lhe39759\Documents\GitHub/')
 from SliceOPy import NetSlice, DataSlice
 from model import u_net as unet
 from keras.utils import plot_model
