@@ -47,7 +47,7 @@ for col in range(0,3):
     trainRoutine = [{"Compile":[keras.optimizers.Adam(lr=0.1),'binary_crossentropy',['binary_accuracy', 'categorical_accuracy']],
                 "Train":[60,None,1]},{"Compile":[keras.optimizers.Adam(lr=0.01),'binary_crossentropy',['binary_accuracy', 'categorical_accuracy']],
                 "Train":[900,None,1]},{"Compile":[keras.optimizers.Adam(lr=0.001),'binary_crossentropy',['binary_accuracy', 'categorical_accuracy']],
-                "Train":[10000,None,1]},{"Compile":[keras.optimizers.Adam(lr=0.0001),'binary_crossentropy',['binary_accuracy', 'categorical_accuracy']],
+                "Train":[30000,None,1]},{"Compile":[keras.optimizers.Adam(lr=0.0001),'binary_crossentropy',['binary_accuracy', 'categorical_accuracy']],
                 "Train":[1000,None,1]}]
 
     nets[col].trainRoutine(routineSettings,trainRoutine)
