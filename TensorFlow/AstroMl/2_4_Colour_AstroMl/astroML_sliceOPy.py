@@ -40,14 +40,14 @@ for col in range(0,3):
     data.loadLabelTest( np.load('AstroML_Y_Test_Shuffle_Split_0_7_Rebalance_1.npy'))
     data.featureColumn(featCols[col])
     nets[col].loadData(data)
-    #nets[col].loadModel('astro_sliceOPy_'+str(col),None)
+    nets[col].loadModel('astro_sliceOPy_'+str(col),None)
     
     routineSettings = {"CompileAll":True, "SaveAll":None}
 
-    trainRoutine = [{"Compile":[keras.optimizers.Adam(lr=0.1),'binary_crossentropy',['binary_accuracy', 'categorical_accuracy']],
-                "Train":[60,None,1]},{"Compile":[keras.optimizers.Adam(lr=0.01),'binary_crossentropy',['binary_accuracy', 'categorical_accuracy']],
-                "Train":[900,None,1]},{"Compile":[keras.optimizers.Adam(lr=0.001),'binary_crossentropy',['binary_accuracy', 'categorical_accuracy']],
-                "Train":[30000,None,1]},{"Compile":[keras.optimizers.Adam(lr=0.0001),'binary_crossentropy',['binary_accuracy', 'categorical_accuracy']],
+    trainRoutine = [{"Compile":[keras.optimizers.Adam(lr=0.1),'mean_squared_error',['binary_accuracy', 'categorical_accuracy']],
+                "Train":[200,None,0]},{"Compile":[keras.optimizers.Adam(lr=0.01),'mean_squared_error',['binary_accuracy', 'categorical_accuracy']],
+                "Train":[900,None,0]},{"Compile":[keras.optimizers.Adam(lr=0.001),'mean_squared_error',['binary_accuracy', 'categorical_accuracy']],
+                "Train":[1000,None,0]},{"Compile":[keras.optimizers.Adam(lr=0.0001),'mean_squared_error',['binary_accuracy', 'categorical_accuracy']],
                 "Train":[1000,None,1]}]
 
     nets[col].trainRoutine(routineSettings,trainRoutine)
@@ -56,7 +56,9 @@ for col in range(0,3):
     cont.append(contamination)
     comp.append(completeness)
     nets[col].saveModel('astro_sliceOPy_'+str(col))
-   
+    nets[col].plotLearningCurve(Loss_Val_Label=str(col)+"Cross",Loss_label=str(col))
+    if col == 0:
+        nets[col].contourPlot()
 #%%
 
 for i in range(0,3):

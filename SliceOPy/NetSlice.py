@@ -172,7 +172,6 @@ class NetSlice:
             if compileEach and routine != trainRoutine[0]:
                 compSetting = routine['Compile']
                 self.compileModel(Optimizer=compSetting[0],Loss=compSetting[1],Metrics=compSetting[2])
-            self.model.summary()
             trainSetting = routine['Train']
             self.trainModel(trainSetting[0],trainSetting[1],trainSetting[2])
 
@@ -213,7 +212,7 @@ class NetSlice:
     def clearHistory(self):
         self.history = []
 
-    def plotLearningCurve(self):
+    def plotLearningCurve(self,Loss_Val_Label="Validation Data",Loss_label="Training Data"):
 
         loss = []
         val_loss = []
@@ -223,10 +222,10 @@ class NetSlice:
 
         epochs = np.arange(0,len(loss),1)
 
-        plt.plot(epochs,loss,label="Training Data")
+        plt.plot(epochs,loss,label=Loss_label)
 
         if val_loss != None:
-            plt.plot(epochs,val_loss,label="Validation Data")
+            plt.plot(epochs,val_loss,label=Loss_Val_Label)
 
         plt.xlabel('Epoch')
         plt.ylabel('Loss')
