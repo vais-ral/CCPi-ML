@@ -4,6 +4,9 @@ Created on Fri Aug 17 10:53:54 2018
 
 @author: lhe39759
 """
+import sys
+sys.path.append(r'C:\Users\lhe39759\Documents\GitHub\CCPi-ML/')
+from SliceOPy import NetSlice, DataSlice
 import keras
 import matplotlib.pyplot as plt
 import numpy as np
@@ -91,8 +94,8 @@ def lossPlot(loss,label):
 features, labels = generateGaussianHillValley(-5.0,5.0,-5.0,5.0,100,9)
 plotGaussian(labels,-5.0,5.0,-5.0,5.0,100,200,"Hill Valley")
 #%%
-#layer1Neurons = [1,2,3,4,5,7,9,12,15,20,30,40,50]
-#layer2Neurons   [0,1,2,3,4,5,7,9,12,15]
+layer1Neurons = [1,2,3,4,5,7,9,12,15,20,30,40,50]
+layer2Neurons =  [0,1,2,3,4,5,7,9,12,15]
 
 layer1Neurons = [3]
 layer2Neurons  = [9]
@@ -100,6 +103,8 @@ history = []
 surface = []
 netDetails = []
 params = []
+
+data = DataSlice.DataSlice(Features=features, Labels=labels,Shuffle=True,Split_Ratio=1.0)
 
 for layer2 in layer2Neurons:
     for layer1 in layer1Neurons:
@@ -118,29 +123,30 @@ for layer2 in layer2Neurons:
             layers.append(keras.layers.Dense(layer2, activation="tanh"))
             layers.append(keras.layers.Dense(1, activation="linear"))
             
-        model = keras.Sequential(layers)
+        modell = keras.Sequential(layers)
         print(model.summary())
-        model.compile(optimizer=keras.optimizers.Adam(lr=0.1), loss='mean_squared_error', metrics=['binary_accuracy', 'categorical_accuracy'])
-        history1 = model.fit(features, labels, batch_size=features.shape[0],epochs=100, verbose=1)
+     
+        model = NetSlice.NetSlice(modell,'keras',data)
         
-        model.compile(optimizer=keras.optimizers.Adam(lr=0.01), loss='mean_squared_error', metrics=['binary_accuracy', 'categorical_accuracy'])
-        history2 = model.fit(features, labels, batch_size=features.shape[0],epochs=2000, verbose=1)
-        
-        model.compile(optimizer=keras.optimizers.Adam(lr=0.001), loss='mean_squared_error', metrics=['binary_accuracy', 'categorical_accuracy'])
-        history3 = model.fit(features, labels, batch_size=features.shape[0],epochs=5000, verbose=1)
-        
-        historyitem = np.append(np.array(history1.history['loss']),np.array(history2.history['loss']))
-        historyitem = np.append(np.array(historyitem),np.array(history3.history['loss']))
+        routineSettings = {"CompileAll":True, "SaveAll":None}
 
+        trainRoutine = [{"Compile":[keras.optimizers.Adam(lr=0.1),'mean_squared_error',['binary_accuracy', 'categorical_accuracy']],
+                    "Train":[100,None,1]},{"Compile":[keras.optimizers.Adam(lr=0.01),'mean_squared_error',['binary_accuracy', 'categorical_accuracy']],
+                    "Train":[2000,None,1]},{"Compile":[keras.optimizers.Adam(lr=0.001),'mean_squared_error',['binary_accuracy', 'categorical_accuracy']],
+                    "Train":[9000,None,1]},{"Compile":[keras.optimizers.Adam(lr=0.0001),'mean_squared_error',['binary_accuracy', 'categorical_accuracy']],
+                    "Train":[7000,None,1]}]
+
+        model.trainRoutine(routineSettings,trainRoutine)
+        model.saveModel("layerTest_"+str(layer1)+"_"+str(layer2))
+        historyitem = model.getHistory()['loss']
         history.append(historyitem)
-        z = model.predict(features)
+        z = model.predictModel(features)
         surface.append(z)
-        plotGaussian(z,-5.0,5.0,-5.0,5.0,100,200,"Hill Valley")
         netDetailsItem.append(layer1)
         netDetailsItem.append(layer2)
-        params.append(model.count_params())
+        params.append(model.model.count_params())
 
-np.save('historytest.npy',np.array(history))
-np.save('surfacetest.npy',np.array(surface))
-np.save('netDetailstest.npy',np.array(netDetails))
-np.save('paramstest.npy',np.array(params))
+np.save('history.npy',np.array(history))
+np.save('surface.npy',np.array(surface))
+np.save('netDetail.npy',np.array(netDetails))
+np.save('params.npy',np.array(params))
