@@ -1,0 +1,93 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Fri Aug 17 11:29:48 2018
+
+@author: lhe39759
+"""
+
+import numpy as np
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D # This import has side effects required for the kwarg projection='3d' in the call to fig.add_subplot
+
+def plotGaussian(labels,xmin,xmax,ymin,ymax,spacerx,spacery,label):
+    x =np.arange(xmin,xmax, (np.abs(xmin)+np.abs(xmax))/spacerx)
+    y = np.arange(ymin, ymax, (np.abs(ymin)+np.abs(ymax))/spacery)
+    X, Y = np.meshgrid(x, y)
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    gaus = labels.reshape(X.shape)
+    ax.plot_surface(X, Y, gaus)
+    fig.suptitle(label)
+    ax.set_xlabel('X')
+    ax.set_ylabel('Y')
+    ax.set_zlabel('Z')
+    
+
+    
+    
+    
+    
+    plt.show()
+    
+def lossPlot(loss,label):
+    
+    epoch = np.arange(0, len(loss))
+    plt.plot(epoch,loss, label=label)
+    plt.xlabel('Epoch')
+    plt.ylabel('Loss')
+    plt.legend()
+
+layer1Neurons = [1,2,3,4,5,7,9,12,15,20,30,40,50]
+ 
+layer2Neurons = [0,1,2,3,4,5,7,9,12,15]
+
+l1 = (len(layer1Neurons))
+l2 = (len(layer2Neurons))
+
+surface = np.load('surface.npy')
+loss = np.load('history.npy')
+params = np.load('params.npy')
+
+print(params.shape)
+print(loss.shape)
+print(surface.shape)
+
+params = params.reshape(l2,l1)
+loss = loss.reshape(l2,l1,loss.shape[1])
+surface = surface.reshape(l2,l1,surface.shape[1],surface.shape[2])
+
+params = np.transpose(params,axes = (1,0))
+loss = np.transpose(loss,axes = (1,0,2))
+surface = np.transpose(surface,axes = (1,0,2,3))
+
+
+print(params.shape)
+print(loss.shape)
+print(surface.shape)
+
+print(params)
+lossgrid = loss[:,:,-1]
+print(lossgrid.shape)
+
+
+fig, ax = plt.subplots()
+im = ax.imshow(lossgrid, aspect='auto')
+
+for i in range(params.shape[0]):
+    for j in range(params.shape[1]):
+        text = ax.text(j, i, str(params[i, j])+" ("+str("%.5f" % loss[i,j,-1])+")", ha="center", va="center", color="w",weight='heavy',size='xx-large')
+ax.set_xlabel("2nd Hidden Layer Width")
+ax.set_ylabel("1st Hidden Layer Width")
+plt.show()
+#plt.plot(np.arange(0,loss[9][2].shape[0]),loss[9][2])
+#plt.show()
+
+plotGaussian(surface[12][9],-5.0,5.0,-5.0,5.0,100,200,"Hill Valley")
+
+#lossPlot(loss[0],"loss")
+#plt.show()
+#
+#dets = np.load('netDetails.npy')
+#params = np.load('params.npy')
+#
+#print(dets[0],params[0])
