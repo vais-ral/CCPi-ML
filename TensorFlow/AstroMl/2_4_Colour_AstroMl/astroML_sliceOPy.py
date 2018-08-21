@@ -5,7 +5,7 @@ Created on Wed Aug 15 14:51:18 2018
 @author: lhe39759
 """
 import sys
-sys.path.append(r'C:\Users\lhe39759\Documents\GitHub/')
+sys.path.append(r'C:\Users\lhe39759\Documents\GitHub\CCPi-ML/')
 from SliceOPy import NetSlice, DataSlice
 import keras
 import numpy as np
@@ -17,7 +17,7 @@ nets = []
 for col in range(0,3):
     
     model = keras.Sequential([
-            keras.layers.Dense(8,input_dim =col+2, activation="tanh"),
+            keras.layers.Dense(16,input_dim =col+2, activation="tanh"),
             keras.layers.Dense(8,input_dim =col+2, activation="tanh"),
             keras.layers.Dense(1, activation ="sigmoid")
             ])
@@ -41,16 +41,15 @@ for col in range(0,3):
     data.featureColumn(featCols[col])
     nets[col].loadData(data)
     nets[col].loadModel('astro_sliceOPy_'+str(col),None)
-    print(nets[col].summary())
+    
     routineSettings = {"CompileAll":True, "SaveAll":None}
 
-#    trainRoutine = [{"Compile":[keras.optimizers.Adam(lr=0.1),'mean_squared_error',['binary_accuracy', 'categorical_accuracy']],
-#                "Train":[20,None,0]},{"Compile":[keras.optimizers.Adam(lr=0.01),'mean_squared_error',['binary_accuracy', 'categorical_accuracy']],
-#                "Train":[100,None,0]},{"Compile":[keras.optimizers.Adam(lr=0.001),'mean_squared_error',['binary_accuracy', 'categorical_accuracy']],
-#                "Train":[100,None,0]},{"Compile":[keras.optimizers.Adam(lr=0.0001),'mean_squared_error',['binary_accuracy', 'categorical_accuracy']],
-#                "Train":[100,None,1]}]
-    trainRoutine = [{"Compile":[keras.optimizers.Adam(lr=0.0001),'mean_squared_error',['binary_accuracy', 'categorical_accuracy']],
+    trainRoutine = [{"Compile":[keras.optimizers.Adam(lr=0.1),'mean_squared_error',['binary_accuracy', 'categorical_accuracy']],
+                "Train":[200,None,0]},{"Compile":[keras.optimizers.Adam(lr=0.01),'mean_squared_error',['binary_accuracy', 'categorical_accuracy']],
+                "Train":[900,None,0]},{"Compile":[keras.optimizers.Adam(lr=0.001),'mean_squared_error',['binary_accuracy', 'categorical_accuracy']],
+                "Train":[1000,None,0]},{"Compile":[keras.optimizers.Adam(lr=0.0001),'mean_squared_error',['binary_accuracy', 'categorical_accuracy']],
                 "Train":[1000,None,1]}]
+
     nets[col].trainRoutine(routineSettings,trainRoutine)
     predictions = np.around(nets[col].predictModel(X_test_unbalanced[:,featCols[col]]).reshape(nets[col].predictModel(X_test_unbalanced[:,featCols[col]]).shape[0],))
     completeness, contamination = completeness_contamination(predictions,(y_test_unbalanced))
