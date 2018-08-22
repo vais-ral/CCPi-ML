@@ -1,3 +1,4 @@
+
 # -*- coding: utf-8 -*-
 """
 Created on Fri Aug 17 10:53:54 2018
@@ -5,7 +6,7 @@ Created on Fri Aug 17 10:53:54 2018
 @author: lhe39759
 """
 import sys
-sys.path.append(r'C:\Users\lhe39759\Documents\GitHub\CCPi-ML/')
+sys.path.append('/home/jakeminns/CCPi-ML/')
 from SliceOPy import NetSlice, DataSlice
 import keras
 import matplotlib.pyplot as plt
@@ -92,13 +93,13 @@ def lossPlot(loss,label):
 
 
 features, labels = generateGaussianHillValley(-5.0,5.0,-5.0,5.0,100,9)
-plotGaussian(labels,-5.0,5.0,-5.0,5.0,100,200,"Hill Valley")
+#plotGaussian(labels,-5.0,5.0,-5.0,5.0,100,200,"Hill Valley")
 #%%
 layer1Neurons = [1,2,3,4,5,7,9,12,15,20,30,40,50]
 layer2Neurons =  [0,1,2,3,4,5,7,9,12,15]
 
-layer1Neurons = [3]
-layer2Neurons  = [9]
+#layer1Neurons = [3]
+#layer2Neurons  = [9]
 history = []
 surface = []
 netDetails = []
@@ -124,7 +125,7 @@ for layer2 in layer2Neurons:
             layers.append(keras.layers.Dense(1, activation="linear"))
             
         modell = keras.Sequential(layers)
-        print(model.summary())
+        print(modell.summary())
      
         model = NetSlice.NetSlice(modell,'keras',data)
         
