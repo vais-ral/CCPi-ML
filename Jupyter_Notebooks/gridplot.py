@@ -132,10 +132,7 @@ for layer2 in layer2Neurons:
         routineSettings = {"CompileAll":True, "SaveAll":None}
 
         trainRoutine = [{"Compile":[keras.optimizers.Adam(lr=0.1),'mean_squared_error',['binary_accuracy', 'categorical_accuracy']],
-                    "Train":[100,None,1]},{"Compile":[keras.optimizers.Adam(lr=0.01),'mean_squared_error',['binary_accuracy', 'categorical_accuracy']],
-                    "Train":[2000,None,1]},{"Compile":[keras.optimizers.Adam(lr=0.001),'mean_squared_error',['binary_accuracy', 'categorical_accuracy']],
-                    "Train":[9000,None,1]},{"Compile":[keras.optimizers.Adam(lr=0.0001),'mean_squared_error',['binary_accuracy', 'categorical_accuracy']],
-                    "Train":[7000,None,1]}]
+                    "Train":[5000,None,1]}]
 
         model.trainRoutine(routineSettings,trainRoutine)
         model.saveModel("layerTest_"+str(layer1)+"_"+str(layer2))
