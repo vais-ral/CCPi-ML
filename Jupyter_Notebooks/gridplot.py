@@ -95,8 +95,8 @@ def lossPlot(loss,label):
 features, labels = generateGaussianHillValley(-5.0,5.0,-5.0,5.0,100,9)
 #plotGaussian(labels,-5.0,5.0,-5.0,5.0,100,200,"Hill Valley")
 #%%
-layer1Neurons = [1,2,3,4,5,7,9,12,15,20,30,40,50]
-layer2Neurons =  [0,1,2,3,4,5,7,9,12,15]
+layer1Neurons = [40]
+layer2Neurons =  [7]
 
 #layer1Neurons = [3]
 #layer2Neurons  = [9]
@@ -146,7 +146,7 @@ for layer2 in layer2Neurons:
         netDetailsItem.append(layer1)
         netDetailsItem.append(layer2)
         params.append(model.model.count_params())
-
+        print(model.getHistory())
 np.save('history.npy',np.array(history))
 np.save('surface.npy',np.array(surface))
 np.save('netDetail.npy',np.array(netDetails))
