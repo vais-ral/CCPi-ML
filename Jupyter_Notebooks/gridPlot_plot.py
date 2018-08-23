@@ -69,20 +69,22 @@ print(params)
 lossgrid = loss[:,:,-1]
 print(lossgrid.shape)
 
-
+maxi = np.amax(lossgrid)
+#
 fig, ax = plt.subplots()
-im = ax.imshow(lossgrid, aspect='auto')
-
+im = ax.imshow((lossgrid/maxi), aspect='auto')
+print(maxi)
 for i in range(params.shape[0]):
     for j in range(params.shape[1]):
         text = ax.text(j, i, str(params[i, j])+" ("+str("%.5f" % loss[i,j,-1])+")", ha="center", va="center", color="w",weight='heavy',size='xx-large')
 ax.set_xlabel("2nd Hidden Layer Width")
 ax.set_ylabel("1st Hidden Layer Width")
 plt.show()
-#plt.plot(np.arange(0,loss[9][2].shape[0]),loss[9][2])
+#print(loss[11][3][-50:-1])
+#plt.plot(np.arange(0,loss[11][6].shape[0]),(loss[11][6]))
 #plt.show()
 
-plotGaussian(surface[12][9],-5.0,5.0,-5.0,5.0,100,200,"Hill Valley")
+#plotGaussian(surface[12][9],-5.0,5.0,-5.0,5.0,100,200,"Hill Valley")
 
 #lossPlot(loss[0],"loss")
 #plt.show()

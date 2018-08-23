@@ -17,8 +17,9 @@ nets = []
 for col in range(0,3):
     
     model = keras.Sequential([
-            keras.layers.Dense(16,input_dim =col+2, activation="tanh"),
-            keras.layers.Dense(8,input_dim =col+2, activation="tanh"),
+            keras.layers.Dense(24,input_dim =col+2, activation="relu"),
+            keras.layers.Dense(16,input_dim =col+2, activation="relu"),
+            keras.layers.Dense(8,input_dim =col+2, activation="relu"),
             keras.layers.Dense(1, activation ="sigmoid")
             ])
     
@@ -30,8 +31,8 @@ X_test_unbalanced = np.load('AstroML_X_Test_Shuffle_Split_0_7.npy')
 y_test_unbalanced = np.load('AstroML_Y_Test_Shuffle_Split_0_7.npy')
 cont = []
 comp = []
-
-for col in range(0,3):
+]
+for col in range(0,1):
     
     data = DataSlice.DataSlice(Features = None,Labels = None)
     data.loadFeatTraining( np.load('AstroML_X_Train_Shuffle_Split_0_7_Rebalance_1.npy'))
@@ -48,7 +49,7 @@ for col in range(0,3):
                 "Train":[200,None,0]},{"Compile":[keras.optimizers.Adam(lr=0.01),'mean_squared_error',['binary_accuracy', 'categorical_accuracy']],
                 "Train":[1000,None,0]},{"Compile":[keras.optimizers.Adam(lr=0.001),'mean_squared_error',['binary_accuracy', 'categorical_accuracy']],
                 "Train":[5000,None,0]},{"Compile":[keras.optimizers.Adam(lr=0.0001),'mean_squared_error',['binary_accuracy', 'categorical_accuracy']],
-                "Train":[30000,None,1]}]
+                "Train":[300,None,1]}]
 #    trainRoutine = [{"Compile":[keras.optimizers.Adam(lr=0.0001),'binary_crossentropy',['binary_accuracy', 'categorical_accuracy']],
 #                "Train":[100,None,1]}]
     nets[col].trainRoutine(routineSettings,trainRoutine)
