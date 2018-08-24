@@ -92,11 +92,11 @@ def lossPlot(loss,label):
     plt.legend()
 
 
-features, labels = generateGaussianHillValley(-5.0,5.0,-5.0,5.0,100,9)
+features, labels = generateGaussianHill(-5.0,5.0,-5.0,5.0,100,9)
 #plotGaussian(labels,-5.0,5.0,-5.0,5.0,100,200,"Hill Valley")
 #%%
-layer1Neurons = [40]
-layer2Neurons =  [7]
+layer1Neurons = [1,2,3,4,5,6,7,9,12,15,20,30,40,50]
+layer2Neurons =  [0,1,2,3,4,5,7,9,12,15]
 
 #layer1Neurons = [3]
 #layer2Neurons  = [9]
@@ -134,7 +134,7 @@ for layer2 in layer2Neurons:
         trainRoutine = [{"Compile":[keras.optimizers.Adam(lr=0.1),'mean_squared_error',['binary_accuracy', 'categorical_accuracy']],
                     "Train":[100,None,0]},{"Compile":[keras.optimizers.Adam(lr=0.01),'mean_squared_error',['binary_accuracy', 'categorical_accuracy']],
                     "Train":[2000,None,0]},{"Compile":[keras.optimizers.Adam(lr=0.001),'mean_squared_error',['binary_accuracy', 'categorical_accuracy']],
-                    "Train":[9000,None,0]},{"Compile":[keras.optimizers.Adam(lr=0.0001),'mean_squared_error',['binary_accuracy', 'categorical_accuracy']],
+                    "Train":[15000,None,0]},{"Compile":[keras.optimizers.Adam(lr=0.0001),'mean_squared_error',['binary_accuracy', 'categorical_accuracy']],
                     "Train":[12000,None,0]}]
 
         model.trainRoutine(routineSettings,trainRoutine)
