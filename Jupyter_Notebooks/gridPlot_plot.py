@@ -41,12 +41,14 @@ layer1Neurons = [1,2,3,4,5,7,9,12,15,20,30,40,50]
  
 layer2Neurons = [0,1,2,3,4,5,7,9,12,15]
 
+layer1Neurons = [1,2,3,4,5,6,7,9,12,15,20,30,40,50]
+layer2Neurons =  [0,1,2,3,4,5,7,9,12,15]
 l1 = (len(layer1Neurons))
 l2 = (len(layer2Neurons))
 
-surface = np.load('surface.npy')
-loss = np.load('history.npy')
-params = np.load('params.npy')
+surface = np.load('SingleGaus_Save/surface.npy')
+loss = np.load('SingleGaus_Save/history.npy')
+params = np.load('SingleGaus_Save/params.npy')
 
 print(params.shape)
 print(loss.shape)
@@ -71,20 +73,24 @@ print(lossgrid.shape)
 
 maxi = np.amax(lossgrid)
 #
-fig, ax = plt.subplots()
-im = ax.imshow((lossgrid/maxi), aspect='auto')
+fig = plt.figure()
+ax = fig.add_subplot(121)
+im = ax.imshow(np.log(lossgrid/maxi), aspect='auto')
 print(maxi)
 for i in range(params.shape[0]):
     for j in range(params.shape[1]):
-        text = ax.text(j, i, str(params[i, j])+" ("+str("%.5f" % loss[i,j,-1])+")", ha="center", va="center", color="w",weight='heavy',size='xx-large')
+        text = ax.text(j, i, str(params[i, j])+" ("+str("%.9f" % loss[i,j,-1])+")", ha="center", va="center", color="w",weight='heavy',size='small')
 ax.set_xlabel("2nd Hidden Layer Width")
 ax.set_ylabel("1st Hidden Layer Width")
-plt.show()
-#print(loss[11][3][-50:-1])
-#plt.plot(np.arange(0,loss[11][6].shape[0]),(loss[11][6]))
-#plt.show()
 
-#plotGaussian(surface[12][9],-5.0,5.0,-5.0,5.0,100,200,"Hill Valley")
+a = 1
+b = 3
+print(loss[a][b][-50:-1])
+ax = fig.add_subplot(122)
+
+ax.plot(np.arange(0,loss[a][b].shape[0]),(loss[a][b]))
+plt.show()
+plotGaussian(surface[a][b],-5.0,5.0,-5.0,5.0,100,100,"Hill Valley")
 
 #lossPlot(loss[0],"loss")
 #plt.show()

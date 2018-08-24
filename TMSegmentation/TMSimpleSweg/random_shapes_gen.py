@@ -7,7 +7,7 @@ Created on Fri Aug 10 15:07:17 2018
 
 import numpy as np
 import matplotlib.pyplot as plt
-import tomophantom as tp
+from tomophantom import TomoP2D
 #import PIL
 #from PIL import Image
 
@@ -19,17 +19,17 @@ def generateImage():
     #specify a full path to the parameters file
     pathTP = 'Phantom2DLibrary.dat'
     #This will generate a N_size x N_size phantom (2D)
-    phantom_2D = tp.TomoP2D.Model(model, N_size, pathTP)
+    phantom_2D = TomoP2D.Model(model, N_size, pathTP)
     
     IMAGE = []
     NOISY_IMAGE = []
     
-    for a in range(0,2,1):
+    for a in range(0,1,1):
         pps = []
         back = []
         num_back_rectangles = np.random.randint(200, 400)
         for i in range(0,num_back_rectangles,1):
-            pp = {'Obj': tp.TomoP2D.Objects2D.RECTANGLE, 
+            pp = {'Obj': TomoP2D.Objects2D.RECTANGLE, 
               'C0' : float(np.random.uniform(low=0.5, high=0.9, size =1)), 
               'x0' : float(np.random.uniform(low=-1.0, high=1.0, size =1)),
               'y0' : float(np.random.uniform(low=-1.0, high=1.0, size =1)),
@@ -37,21 +37,21 @@ def generateImage():
               'b'  : float(np.random.uniform(low=0.02, high=0.3, size=1)),
               'phi': float(np.random.uniform(low=0, high=180, size=1))}
             
-            bb = {'Obj': tp.TomoP2D.Objects2D.ELLIPSE, 
+            bb = {'Obj': TomoP2D.Objects2D.ELLIPSE, 
               'C0' : float(np.random.uniform(low=0.1, high=0.5, size =1)), 
               'x0' : float(np.random.uniform(low=-1.0, high=1.0, size =1)),
               'y0' : float(np.random.uniform(low=-1.0, high=1.0, size =1)),
               'a'  : float(np.random.uniform(low=0.02, high=0.3, size = 1)),
               'b'  : float(np.random.uniform(low=0.02, high=0.3, size=1)),
               'phi': float(np.random.uniform(low=0, high=180, size=1))}
-            cc = {'Obj': tp.TomoP2D.Objects2D.RECTANGLE, 
+            cc = {'Obj': TomoP2D.Objects2D.RECTANGLE, 
               'C0' : float(np.random.uniform(low=0.5, high=0.9, size =1)), 
               'x0' : float(np.random.uniform(low=-1.0, high=1.0, size =1)),
               'y0' : float(np.random.uniform(low=-1.0, high=1.0, size =1)),
               'a'  : float(np.random.uniform(low=0.02, high=0.3, size = 1)),
               'b'  : float(np.random.uniform(low=0.02, high=0.3, size=1)),
               'phi': float(np.random.uniform(low=0, high=180, size=1))}
-            dd = {'Obj': tp.TomoP2D.Objects2D.ELLIPSE, 
+            dd = {'Obj': TomoP2D.Objects2D.ELLIPSE, 
               'C0' : float(np.random.uniform(low=0.5, high=0.9, size =1)), 
               'x0' : float(np.random.uniform(low=-1.0, high=1.0, size =1)),
               'y0' : float(np.random.uniform(low=-1.0, high=1.0, size =1)),
@@ -71,7 +71,7 @@ def generateImage():
         print(a)
         
         for i in range(0,num_rectangles,1):
-            pp = {'Obj': tp.TomoP2D.Objects2D.RECTANGLE, 
+            pp = {'Obj': TomoP2D.Objects2D.RECTANGLE, 
               'C0' : float(np.random.uniform(low=0.7, high=0.9, size =1)), 
               'x0' : float(np.random.uniform(low=-0.5, high=1.0, size =1)),
               'y0' : float(np.random.uniform(low=-1.0, high=0.5, size =1)),
@@ -79,21 +79,21 @@ def generateImage():
               'b'  : float(np.random.uniform(low=0.02, high=0.3, size=1)),
               'phi': float(np.random.uniform(low=0, high=180, size=1))}
             
-            bb = {'Obj': tp.TomoP2D.Objects2D.ELLIPSE, 
+            bb = {'Obj': TomoP2D.Objects2D.ELLIPSE, 
               'C0' : float(np.random.uniform(low=0.7, high=0.9, size =1)), 
               'x0' : float(np.random.uniform(low=-1.0, high=1.0, size =1)),
               'y0' : float(np.random.uniform(low=-1.0, high=0.5, size =1)),
               'a'  : float(np.random.uniform(low=0.02, high=0.3, size = 1)),
               'b'  : float(np.random.uniform(low=0.02, high=0.3, size=1)),
               'phi': float(np.random.uniform(low=0, high=180, size=1))}
-            cc = {'Obj': tp.TomoP2D.Objects2D.RECTANGLE, 
+            cc = {'Obj': TomoP2D.Objects2D.RECTANGLE, 
               'C0' : float(np.random.uniform(low=0.7, high=0.9, size =1)), 
               'x0' : float(np.random.uniform(low=-1.0, high=1.0, size =1)),
               'y0' : float(np.random.uniform(low=-1.0, high=0.5, size =1)),
               'a'  : float(np.random.uniform(low=0.02, high=0.3, size = 1)),
               'b'  : float(np.random.uniform(low=0.02, high=0.3, size=1)),
               'phi': float(np.random.uniform(low=0, high=180, size=1))}
-            dd = {'Obj': tp.TomoP2D.Objects2D.ELLIPSE, 
+            dd = {'Obj': TomoP2D.Objects2D.ELLIPSE, 
               'C0' : float(np.random.uniform(low=0.7, high=0.9, size =1)), 
               'x0' : float(np.random.uniform(low=-1.0, high=1.0, size =1)),
               'y0' : float(np.random.uniform(low=-1.0, high=0.5, size =1)),
@@ -111,10 +111,10 @@ def generateImage():
         background = np.zeros((256, 256), dtype=np.uint8)
         
         for i in range(0,num_back_rectangles,1):
-            phantom_2D = (tp.TomoP2D.Object(256,back[i]))
+            phantom_2D = (TomoP2D.Object(256,back[i]))
             background = (background + phantom_2D)
         for i in range(0,num_rectangles,1):
-            phantom_2D = (tp.TomoP2D.Object(256,pps[i]))
+            phantom_2D = (TomoP2D.Object(256,pps[i]))
             shapes = (shapes + phantom_2D)
               
         noise = np.random.uniform(low=0,high=1, size=(256, 256))
