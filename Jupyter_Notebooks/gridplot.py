@@ -6,7 +6,7 @@ Created on Fri Aug 17 10:53:54 2018
 @author: lhe39759
 """
 import sys
-sys.path.append('/home/jakeminns/')
+sys.path.append(r'C:\Users\lhe39759\Documents\GitHub')
 from SliceOPy import NetSlice, DataSlice
 import keras
 import matplotlib.pyplot as plt
@@ -96,13 +96,13 @@ def lossPlot(loss,label):
 features, labels = generateGaussianHill(-5.0,5.0,-5.0,5.0,100,9)
 testF, testL = generateGaussianHill(-5.0,5.0,-5.0,5.0,100,9)
 
-#plotGaussian(labels,-5.0,5.0,-5.0,5.0,100,200,"Hill Valley")
+plotGaussian(labels,-5.0,5.0,-5.0,5.0,100,100,"Hill Valley")
 #%%
 layer1Neurons = [1,2,3,4,5,6,7,9,12,15,20,30,40,50]
 layer2Neurons =  [0,1,2,3,4,5,6,7,9,12,15,20,30,40,50]
 
-#layer1Neurons = [3]
-#layer2Neurons  = [9]
+layer1Neurons = [3]
+layer2Neurons  = [9]
 historyval = []
 history = []
 surface = []
@@ -142,10 +142,10 @@ for layer2 in layer2Neurons:
         routineSettings = {"CompileAll":True, "SaveAll":None}
 
         trainRoutine = [{"Compile":[keras.optimizers.Adam(lr=0.1),'mean_squared_error',['binary_accuracy', 'categorical_accuracy']],
-                    "Train":[100,None,0]},{"Compile":[keras.optimizers.Adam(lr=0.01),'mean_squared_error',['binary_accuracy', 'categorical_accuracy']],
-                    "Train":[2000,None,0]},{"Compile":[keras.optimizers.Adam(lr=0.001),'mean_squared_error',['binary_accuracy', 'categorical_accuracy']],
-                    "Train":[25000,None,0]},{"Compile":[keras.optimizers.Adam(lr=0.0001),'mean_squared_error',['binary_accuracy', 'categorical_accuracy']],
-                    "Train":[15000,None,0]}]
+                    "Train":[10,None,0]},{"Compile":[keras.optimizers.Adam(lr=0.01),'mean_squared_error',['binary_accuracy', 'categorical_accuracy']],
+                    "Train":[20,None,0]},{"Compile":[keras.optimizers.Adam(lr=0.001),'mean_squared_error',['binary_accuracy', 'categorical_accuracy']],
+                    "Train":[20,None,0]},{"Compile":[keras.optimizers.Adam(lr=0.0001),'mean_squared_error',['binary_accuracy', 'categorical_accuracy']],
+                    "Train":[150,None,0]}]
 
         model.trainRoutine(routineSettings,trainRoutine)
         model.saveModel("layerTest_"+str(layer1)+"_"+str(layer2))
