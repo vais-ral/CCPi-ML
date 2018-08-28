@@ -30,6 +30,7 @@ def gkern2(kernlen=21, nsig=3):
 def generateGaussianHill(xmin,xmax,ymin,ymax,spacer,sig):
     
     gauss = gkern2(spacer,sig)
+    gauss = gauss + (np.random.random_sample(gauss.shape)*0.05)
     x =np.arange(xmin,xmax, (np.abs(xmin)+np.abs(xmax))/spacer)
     y = np.arange(ymin, ymax, (np.abs(ymin)+np.abs(ymax))/spacer)
     X, Y = np.meshgrid(x, y)
@@ -93,19 +94,28 @@ def lossPlot(loss,label):
 
 
 features, labels = generateGaussianHill(-5.0,5.0,-5.0,5.0,100,9)
+testF, testL = generateGaussianHill(-5.0,5.0,-5.0,5.0,100,9)
+
 #plotGaussian(labels,-5.0,5.0,-5.0,5.0,100,200,"Hill Valley")
 #%%
 layer1Neurons = [1,2,3,4,5,6,7,9,12,15,20,30,40,50]
-layer2Neurons =  [0,1,2,3,4,5,7,9,12,15]
+layer2Neurons =  [0,1,2,3,4,5,6,7,9,12,15,20,30,40,50]
 
 #layer1Neurons = [3]
 #layer2Neurons  = [9]
+historyval = []
 history = []
 surface = []
 netDetails = []
 params = []
 
-data = DataSlice.DataSlice(Features=features, Labels=labels,Shuffle=True,Split_Ratio=1.0)
+data = DataSlice(Features=None, Labels=None,Shuffle=True,Split_Ratio=1.0)
+data.loadFeatTraining(features)
+data.loadFeatTest(testF)
+data.loadLabelTraining(labels)
+data.loadLabelTest(testL)
+
+print(data.X_train.shape,data.X_test.shape)
 
 for layer2 in layer2Neurons:
     for layer1 in layer1Neurons:
@@ -116,30 +126,30 @@ for layer2 in layer2Neurons:
         
         if layer2 == 0:
             
-            layers.append(keras.layers.Dense(layer1, input_dim = 2, activation="tanh"))
+            layers.append(keras.layers.Dense(layer1, input_dim = 2, activation="sigmoid"))
             layers.append(keras.layers.Dense(1, activation="linear"))
         else:
             
-            layers.append(keras.layers.Dense(layer1, input_dim = 2, activation="tanh"))
-            layers.append(keras.layers.Dense(layer2, activation="tanh"))
+            layers.append(keras.layers.Dense(layer1, input_dim = 2, activation="sigmoid"))
+            layers.append(keras.layers.Dense(layer2, activation="sigmoid"))
             layers.append(keras.layers.Dense(1, activation="linear"))
             
         modell = keras.Sequential(layers)
         print(modell.summary())
      
-        model = NetSlice.NetSlice(modell,'keras',data)
+        model = NetSlice(modell,'keras',data,History_Keys=["loss","val_loss"])
         
         routineSettings = {"CompileAll":True, "SaveAll":None}
 
         trainRoutine = [{"Compile":[keras.optimizers.Adam(lr=0.1),'mean_squared_error',['binary_accuracy', 'categorical_accuracy']],
                     "Train":[100,None,0]},{"Compile":[keras.optimizers.Adam(lr=0.01),'mean_squared_error',['binary_accuracy', 'categorical_accuracy']],
                     "Train":[2000,None,0]},{"Compile":[keras.optimizers.Adam(lr=0.001),'mean_squared_error',['binary_accuracy', 'categorical_accuracy']],
-                    "Train":[15000,None,0]},{"Compile":[keras.optimizers.Adam(lr=0.0001),'mean_squared_error',['binary_accuracy', 'categorical_accuracy']],
-                    "Train":[12000,None,0]}]
+                    "Train":[25000,None,0]},{"Compile":[keras.optimizers.Adam(lr=0.0001),'mean_squared_error',['binary_accuracy', 'categorical_accuracy']],
+                    "Train":[15000,None,0]}]
 
         model.trainRoutine(routineSettings,trainRoutine)
         model.saveModel("layerTest_"+str(layer1)+"_"+str(layer2))
-        historyitem = model.getHistory()['loss']
+        historyitem = model.getHistory()
         history.append(historyitem)
         z = model.predictModel(features)
         surface.append(z)
