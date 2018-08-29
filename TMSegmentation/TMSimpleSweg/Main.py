@@ -32,21 +32,21 @@ from keras.utils import plot_model
 import tensorflow as tf
 import keras
 from model.losses import bce_dice_loss, dice_loss, weighted_bce_dice_loss, weighted_dice_loss, dice_coeff
-from random_shapes_gen import generateImage
+from shape_pattern_gen_segmenter import generateImage
 
 
 #netData = DataSlice.NetData(features,labels,Shuffle=True,Rebalance=None,Split_Ratio = 0.7,Channel_Features = (256,256), Channel_Labels = (256,256))
 
-#unet.get_unet_256(input_shape=(256,256,1))
+#unet.get_unet_256(input_shape=(256,256,1),num_classes=7)
 
-model = NetSlice.NetSlice(None,'keras', None)
-model.loadModel('modelSaveTest',customObject={'bce_dice_loss':bce_dice_loss,'dice_coeff':dice_coeff})
-#model.compileModel(keras.optimizers.RMSprop(lr=0.001), bce_dice_loss, [dice_coeff])
-#model.generativeDataTrain(generateImage, BatchSize=1, Epochs=500)
-#model.trainModel(Epochs = 10,Batch_size = None, Verbose = 2)
+model = NetSlice(unet.get_unet_256(input_shape=(256,256,1),num_classes=7),'keras', None)
+#model.loadModel('modelSaveTest',customObject={'bce_dice_loss':bce_dice_loss,'dice_coeff':dice_coeff})
+model.compileModel(keras.optimizers.RMSprop(lr=0.001), bce_dice_loss, [dice_coeff])
+model.generativeDataTrain(generateImage, BatchSize=1, Epochs=500)
+model.trainModel(Epochs = 1,Batch_size = None, Verbose = 2)
 
 #model.plotLearningCurve()
-print(model.getHistory())
+#print(model.getHistory())
 
 #%%
 #model.saveModel('modelSaveTest')
@@ -57,7 +57,7 @@ print(model.getHistory())
 #netData = NetData(features,labels,Shuffle=True,Rebalance=None,Split_Ratio = 0.1)
 ##%%
 
-model.generativeDataTesting(generateImage, SampleNumber=100,Threshold=1e-3)
+#model.generativeDataTesting(generateImage, SampleNumber=100,Threshold=1e-3)
 #data = []
 #item = generateImage()
 #data.append(np.array(item))

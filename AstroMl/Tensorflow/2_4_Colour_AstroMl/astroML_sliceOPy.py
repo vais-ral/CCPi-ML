@@ -11,20 +11,30 @@ import keras
 import numpy as np
 from astroML.utils import completeness_contamination
 import matplotlib.pyplot as plt
+import math
 featCols = [[1,0],[1,0,2],[1,0,2,3]]
 nets = []
 
-for col in range(0,3):
+model = keras.Sequential([
+            keras.layers.Dense(8,input_dim =2, activation="sigmoid"),
+            keras.layers.Dense(4, activation="sigmoid"),
+            keras.layers.Dense(1, activation ="sigmoid")])
     
-    model = keras.Sequential([
-            keras.layers.Dense(8,input_dim =col+2, activation="sigmoid"),
+    
+nets.append(NetSlice(model,'keras'))
+model = keras.Sequential([
+            keras.layers.Dense(7,input_dim =3, activation="sigmoid"),
             keras.layers.Dense(4, activation="sigmoid"),
             keras.layers.Dense(1, activation ="sigmoid")
             ])
-    
-    
-    nets.append(NetSlice(model,'keras'))
+nets.append(NetSlice(model,'keras'))
 
+model = keras.Sequential([
+            keras.layers.Dense(6,input_dim =4, activation="sigmoid"),
+            keras.layers.Dense(4, activation="sigmoid"),
+            keras.layers.Dense(1, activation ="sigmoid")
+            ])
+nets.append(NetSlice(model,'keras'))
 
 X_test_unbalanced = np.load('AstroML_X_Test_Shuffle_Split_0_7.npy')
 y_test_unbalanced = np.load('AstroML_Y_Test_Shuffle_Split_0_7.npy')
@@ -46,12 +56,10 @@ for col in range(0,3):
 
     trainRoutine = [{"Compile":[keras.optimizers.Adam(lr=0.1),'mean_squared_error',['binary_accuracy', 'categorical_accuracy']],
                 "Train":[1000,None,0]},{"Compile":[keras.optimizers.Adam(lr=0.01),'mean_squared_error',['binary_accuracy', 'categorical_accuracy']],
-                "Train":[100,None,0]},{"Compile":[keras.optimizers.Adam(lr=0.001),'mean_squared_error',['binary_accuracy', 'categorical_accuracy']],
-                "Train":[100,None,0]},{"Compile":[keras.optimizers.Adam(lr=0.0001),'mean_squared_error',['binary_accuracy', 'categorical_accuracy']],
-                "Train":[100,None,1]}]
+                "Train":[1000,None,0]}]
     
     trainRoutine = [{"Compile":[keras.optimizers.Adam(lr=0.01),'mean_squared_error',['binary_accuracy', 'categorical_accuracy']],
-                "Train":[40000,None,1]}]
+                "Train":[3000,None,0]}]
 
     nets[col].trainRoutine(routineSettings,trainRoutine)
     predictions = np.around(nets[col].predictModel(X_test_unbalanced[:,featCols[col]]).reshape(nets[col].predictModel(X_test_unbalanced[:,featCols[col]]).shape[0],))
@@ -63,7 +71,8 @@ for col in range(0,3):
     ax = fig.add_subplot(1, 4, col+1)
     nets[col].plotLearningCurve(ax,Plot_Dict={'loss':"Loss",'val_loss':"Test Loss"})
 #    if col == 0:
-#        nets[col].contourPlot()
+#        ax = fig.add_subplot(1,1,1)
+#        nets[col].contourPlot(ax)
 #%%
 plt.show()
 for i in range(0,3):
