@@ -85,7 +85,7 @@ def generateImage():
 
      
         noise = np.random.uniform(low=0,high=np.amax(image_temp), size=(256, 256))
-        nos = (image_temp*1.0)+(noise*1.0)+(back_temp*1.5)
+        nos = (image_temp*1.0)+(noise*1.0)+(back_temp*1.0)
         nos = np.divide(nos,np.amax(nos))
         Images.append(nos)
         Labels_array.append(np.array(image_temp))
@@ -94,10 +94,10 @@ def generateImage():
         
     return np.array(Images),np.array(Labels_array)
 
-#f , l = generateImage()
-#fig = plt.figure()
-#ax = fig.add_subplot(121)
-#ax.imshow(f[0])
-#ax = fig.add_subplot(122)
-#ax.imshow(l[0])
-#plt.show()
+f , l = generateImage()
+fig = plt.figure()
+ax = fig.add_subplot(121)
+ax.imshow(f[0])
+ax = fig.add_subplot(122)
+ax.imshow(l[0])
+plt.show()

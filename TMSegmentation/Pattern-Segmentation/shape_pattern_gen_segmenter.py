@@ -20,10 +20,10 @@ def genTomoShape(typeShape):
               'a'  : float(np.random.uniform(low=0.2, high=0.4, size = 1)),
               'b'  : float(np.random.uniform(low=0.2, high=0.4, size=1)),
               'phi': float(np.random.uniform(low=0, high=180, size=1))}
-def loadImg():
+def loadSimpleImg():
     
-    path = "Patterns/"
-    patOptions = ["annealing_twins","Brass bronze","Ductile_Cast_Iron","Grey_Cast_Iron","hypoeutectoid_steel","malleable_cast_iron","superalloy"]
+    path = "Simple-Patterns/"
+    patOptions = ["Stripes","Spots"]
     
     image_array = []
     
@@ -38,7 +38,25 @@ def loadImg():
         image_array.append(np.array(folder_array))
 
     return (np.array(image_array))
+
+def loadImg():
+    path = "Patterns/"
     
+    patOptions = ["annealing_twins","Brass bronze","Ductile_Cast_Iron","Grey_Cast_Iron","hypoeutectoid_steel","malleable_cast_iron","superalloy"]
+    
+    image_array = []
+    
+    for folder in patOptions:
+        folder_array = []
+        for filename in os.listdir(path+folder+"/"):
+            if filename.endswith(".png"):
+                insertImage1 = np.asarray(PIL.Image.open(path+folder+"/"+filename).convert('L'))
+                insertImage1.setflags(write=1)
+                insertImage1 = np.pad(insertImage1, (300,300), 'symmetric')
+                folder_array.append(np.array(insertImage1[:256,:256]))
+        image_array.append(np.array(folder_array))
+
+    return (np.array(image_array))   
 def generateImage():
     model = 6 # selecting a model
     N_size = 256
@@ -53,7 +71,6 @@ def generateImage():
     shapeTypes = [TomoP2D.Objects2D.RECTANGLE,TomoP2D.Objects2D.ELLIPSE]
     
     
-    insertImage=loadImg()
     
     for a in range(0,1,1):
         objects = []
@@ -68,7 +85,7 @@ def generateImage():
         num_shapes = np.random.randint(5, 20)
         num_shapes = 5
         
-        insertImage = loadImg() 
+        insertImage = loadSimpleImg() 
         
         label_temp = np.zeros((256, 256), dtype=np.uint8)
         image_temp = np.zeros((256, 256), dtype=np.uint8)
@@ -105,8 +122,8 @@ def generateImage():
             image_temp[fit] = shape[fit]
 
      
-        noise = np.random.uniform(low=0,high=np.amax(image_temp)*0.1, size=(256, 256))
-        nos = (image_temp*1.0)+(noise*1.0)
+        noise = np.random.uniform(low=0,high=np.amax(image_temp)*1.0, size=(256, 256))
+        nos = (image_temp*1.0)+(noise*0.2)
 
         Images.append(nos)
         Labels_array.append(np.array(temp_label_array))
@@ -118,11 +135,11 @@ def generateImage():
         item = np.array(item)
         
     return np.array(nos),np.array(temp_label_array)
-f,l =  generateImage()
-fig = plt.figure()
-ax = fig.add_subplot(121)
-ax.imshow(f)
-ax = fig.add_subplot(122)
-print(l.shape)
-ax.imshow(l[0])
-plt.show()
+#f,l =  generateImage()
+#fig = plt.figure()
+#ax = fig.add_subplot(121)
+#ax.imshow(f)
+#ax = fig.add_subplot(122)
+#print(l.shape)
+#ax.imshow(l[1])
+#plt.show()

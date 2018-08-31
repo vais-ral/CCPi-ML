@@ -42,13 +42,25 @@ layer1Neurons = [1,2,3,4,5,7,9,12,15,20,30,40,50]
 layer2Neurons = [0,1,2,3,4,5,7,9,12,15]
 
 layer1Neurons = [1,2,3,4,5,6,7,9,12,15,20,30,40,50]
-layer2Neurons =  [0,1,2,3,4,5,7,9,12,15]
+layer2Neurons =  [0,1,2,3,4,5,6,7,9,12,15,20,30,40,50]
+
 l1 = (len(layer1Neurons))
 l2 = (len(layer2Neurons))
 
-surface = np.load('SingleGaus_Save/surface.npy')
-loss = np.load('SingleGaus_Save/history.npy')
-params = np.load('SingleGaus_Save/params.npy')
+surface = np.load('Final/surface.npy')
+losses = np.load('Final/history.npy')
+params = np.load('Final/params.npy')
+
+loss = []
+
+for l in losses:
+    loss.append(np.array(l['loss']))
+loss = np.array(loss)
+val_loss = []
+
+for l in losses:
+    val_loss.append(np.array(l['val_loss']))
+val_loss = np.array(val_loss)
 
 print(params.shape)
 print(loss.shape)
@@ -56,6 +68,8 @@ print(surface.shape)
 
 params = params.reshape(l2,l1)
 loss = loss.reshape(l2,l1,loss.shape[1])
+val_loss = val_loss.reshape(l2,l1,val_loss.shape[1])
+
 surface = surface.reshape(l2,l1,surface.shape[1],surface.shape[2])
 
 params = np.transpose(params,axes = (1,0))
@@ -64,7 +78,7 @@ surface = np.transpose(surface,axes = (1,0,2,3))
 
 
 print(params.shape)
-print(loss.shape)
+print(loss.shape,val_loss.shape)
 print(surface.shape)
 
 print(params)
@@ -74,23 +88,25 @@ print(lossgrid.shape)
 maxi = np.amax(lossgrid)
 #
 fig = plt.figure()
-ax = fig.add_subplot(121)
-im = ax.imshow(np.log(lossgrid/maxi), aspect='auto')
+ax = fig.add_subplot(111)
+ax.imshow(np.log(lossgrid/maxi), aspect='auto')
+#plt.imshow(lossgrid, aspect='auto')
+
 print(maxi)
 for i in range(params.shape[0]):
     for j in range(params.shape[1]):
-        text = ax.text(j, i, str(params[i, j])+" ("+str("%.9f" % loss[i,j,-1])+")", ha="center", va="center", color="w",weight='heavy',size='small')
+        text = ax.text(j, i, str(params[i, j])+" ("+str("%.5f" % val_loss[i,j,-1])+")", ha="center", va="center", color="w",weight='heavy',size='small')
 ax.set_xlabel("2nd Hidden Layer Width")
 ax.set_ylabel("1st Hidden Layer Width")
 
 a = 1
 b = 3
-print(loss[a][b][-50:-1])
-ax = fig.add_subplot(122)
-
-ax.plot(np.arange(0,loss[a][b].shape[0]),(loss[a][b]))
+print(val_loss.shape)
+#ax = fig.add_subplot(122)
+#
+#ax.plot(np.arange(0,loss[a][b].shape[0]),(loss[a][b]))
 plt.show()
-plotGaussian(surface[a][b],-5.0,5.0,-5.0,5.0,100,100,"Hill Valley")
+#plotGaussian(surface[a][b],-5.0,5.0,-5.0,5.0,100,100,"Hill Valley")
 
 #lossPlot(loss[0],"loss")
 #plt.show()
