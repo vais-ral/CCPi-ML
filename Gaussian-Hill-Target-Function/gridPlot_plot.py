@@ -20,13 +20,7 @@ def plotGaussian(labels,xmin,xmax,ymin,ymax,spacerx,spacery,label):
     fig.suptitle(label)
     ax.set_xlabel('X')
     ax.set_ylabel('Y')
-    ax.set_zlabel('Z')
-    
-
-    
-    
-    
-    
+    ax.set_zlabel('Z')   
     plt.show()
     
 def lossPlot(loss,label):
@@ -47,10 +41,10 @@ layer2Neurons =  [0,1,2,3,4,5,6,7,9,12,15,20,30,40,50]
 l1 = (len(layer1Neurons))
 l2 = (len(layer2Neurons))
 
-surface = np.load('Final/surface.npy')
-losses = np.load('Final/history.npy')
-params = np.load('Final/params.npy')
-
+surface = np.load(r'C:\Users\lhe39759\Documents\CCPI-Data\Gaussian-Hill-Final-Grid-Data/surface.npy')
+losses = np.load(r'C:\Users\lhe39759\Documents\CCPI-Data\Gaussian-Hill-Final-Grid-Data/history.npy')
+params = np.load(r'C:\Users\lhe39759\Documents\CCPI-Data\Gaussian-Hill-Final-Grid-Data/params.npy')
+#%%
 loss = []
 
 for l in losses:
@@ -60,15 +54,15 @@ val_loss = []
 
 for l in losses:
     val_loss.append(np.array(l['val_loss']))
-val_loss = np.array(val_loss)
+val_loss = (np.array(val_loss))
 
 print(params.shape)
-print(loss.shape)
+print("ddd",loss.shape,(val_loss).shape)
 print(surface.shape)
 
 params = params.reshape(l2,l1)
 loss = loss.reshape(l2,l1,loss.shape[1])
-val_loss = val_loss.reshape(l2,l1,val_loss.shape[1])
+val_loss = np.transpose(val_loss.reshape(l2,l1,val_loss.shape[1]),axes=(1,0,2))
 
 surface = surface.reshape(l2,l1,surface.shape[1],surface.shape[2])
 
@@ -80,22 +74,27 @@ surface = np.transpose(surface,axes = (1,0,2,3))
 print(params.shape)
 print(loss.shape,val_loss.shape)
 print(surface.shape)
-
+#%%
 print(params)
-lossgrid = loss[:,:,-1]
+lossgrid = loss[:,:5,-1]
 print(lossgrid.shape)
-
+#%%
 maxi = np.amax(lossgrid)
 #
+max
 fig = plt.figure()
 ax = fig.add_subplot(111)
 ax.imshow(np.log(lossgrid/maxi), aspect='auto')
 #plt.imshow(lossgrid, aspect='auto')
-
+print(params.shape)
+print(val_loss.shape,loss.shape)
 print(maxi)
 for i in range(params.shape[0]):
-    for j in range(params.shape[1]):
-        text = ax.text(j, i, str(params[i, j])+" ("+str("%.5f" % val_loss[i,j,-1])+")", ha="center", va="center", color="w",weight='heavy',size='small')
+    c=0
+    if i == 0:
+        c = 1
+    for j in range(5):
+        text = ax.text(j, i, str(params[i, j])+" ("+str("%.9f" %  np.log(loss[i,j,-1]))+")", ha="center", va="center", color="w",weight='heavy',size='xx-large')
 ax.set_xlabel("2nd Hidden Layer Width")
 ax.set_ylabel("1st Hidden Layer Width")
 
@@ -106,7 +105,7 @@ print(val_loss.shape)
 #
 #ax.plot(np.arange(0,loss[a][b].shape[0]),(loss[a][b]))
 plt.show()
-#plotGaussian(surface[a][b],-5.0,5.0,-5.0,5.0,100,100,"Hill Valley")
+#plotGaussian(surface[13][13],-5.0,5.0,-5.0,5.0,100,100,"Hill Valley")
 
 #lossPlot(loss[0],"loss")
 #plt.show()
