@@ -39,10 +39,10 @@ from shape_pattern_gen_segmenter import generateImage
 
 #unet.get_unet_256(input_shape=(256,256,1),num_classes=7)
 
-model = NetSlice(unet.get_unet_256(input_shape=(256,256,1),num_classes=7),'keras', None)
+model = NetSlice(unet.get_unet_256(input_shape=(256,256,1),num_classes=2),'keras', None)
 #model.loadModel('modelSaveTest',customObject={'bce_dice_loss':bce_dice_loss,'dice_coeff':dice_coeff})
-model.compileModel(keras.optimizers.RMSprop(lr=0.001), bce_dice_loss_jake, [dice_coeff])
-model.generativeDataTrain(generateImage, BatchSize=1, Epochs=1,Channel_Ordering=(256,256,1,7))
+model.compileModel(keras.optimizers.RMSprop(lr=0.001), bce_dice_loss, [dice_coeff])
+model.generativeDataTrain(generateImage, BatchSize=2, Epochs=1,Channel_Ordering=(256,256,1,2))
 #model.trainModel(Epochs = 1000,Batch_size = 1000, Verbose = 2)
 
 #model.plotLearningCurve()

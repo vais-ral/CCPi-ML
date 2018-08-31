@@ -57,7 +57,7 @@ model.compileModel(keras.optimizers.RMSprop(lr=0.001), bce_dice_loss, [dice_coef
 #netData = NetData(features,labels,Shuffle=True,Rebalance=None,Split_Ratio = 0.1)
 ##%%
 
-model.generativeDataTesting(generateImage, SampleNumber=100,Threshold=1e-3,Channel_Ordering=(256,256,1,1))
+model.generativeDataTesting(generateImage, SampleNumber=1,Threshold=1e-3,Channel_Ordering=(256,256,1,1))
 #data = []
 #item = generateImage()
 #data.append(np.array(item))
