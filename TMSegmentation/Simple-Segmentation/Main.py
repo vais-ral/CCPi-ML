@@ -25,7 +25,7 @@ import matplotlib.pyplot as plt
 
 import numpy as np
 import sys
-sys.path.append(r'C:\Users\lhe39759\Documents\GitHub/')
+sys.path.append(r'C:\Users\minns\OneDrive\Documents\Programming\GitHub/')
 from SliceOPy import NetSlice, DataSlice
 from model import u_net as unet
 from keras.utils import plot_model
@@ -40,7 +40,7 @@ from shape_pattern_gen_segmenter import generateImage
 #unet.get_unet_256(input_shape=(256,256,1),num_classes=7)
 
 model = NetSlice(unet.get_unet_256(input_shape=(256,256,1),num_classes=1),'keras', None)
-model.loadModel('modelSaveTest',customObject={'bce_dice_loss':bce_dice_loss,'dice_coeff':dice_coeff})
+model.loadModel(r'C:\Users\minns\OneDrive\Documents\SepNet_Project_Data\SepNet_Project_Data\Simple-Image-Segmentation-Model\modelSaveTest',customObject={'bce_dice_loss':bce_dice_loss,'dice_coeff':dice_coeff},Setting=1)
 model.compileModel(keras.optimizers.RMSprop(lr=0.001), bce_dice_loss, [dice_coeff])
 #model.generativeDataTrain(generateImage, BatchSize=1, Epochs=100,Channel_Ordering=(256,256,1,1))
 #model.trainModel(Epochs = 1,Batch_size = None, Verbose = 2)

@@ -1,0 +1,45 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{377397a5-4373-4eae-b931-9d4516cbff35}</ProjectGuid>
+    <ProjectHome />
+    <StartupFile>astroML_sliceOPy.py</StartupFile>
+    <SearchPath />
+    <WorkingDirectory>.</WorkingDirectory>
+    <OutputPath>.</OutputPath>
+    <ProjectTypeGuids>{888888a0-9f3d-457c-b088-3a5042f75d52}</ProjectTypeGuids>
+    <LaunchProvider>Standard Python launcher</LaunchProvider>
+    <InterpreterId>Global|PythonCore|3.6</InterpreterId>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
+  <PropertyGroup>
+    <VisualStudioVersion Condition=" '$(VisualStudioVersion)' == '' ">10.0</VisualStudioVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <Content Include="AstroML_Data.txt" />
+    <Content Include="AstroML_Labels.txt" />
+    <Content Include="Plot_Fig\4_3__NN.png" />
+    <Content Include="Plot_Fig\astroml_24_16.png" />
+    <Content Include="Plot_Fig\astroml_24_20_drop0_2.png" />
+    <Content Include="Plot_Fig\fact.png" />
+    <Content Include="Plot_Fig\gj.png" />
+    <Content Include="Plot_Fig\jgc.png" />
+    <Content Include="Plot_Fig\NN_AstroML_ClassificationPlots_sigmoid.png" />
+    <Content Include="Plot_Fig\NN_AstroML_ClassificationPlots_tanh.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="astroML_sliceOPy.py" />
+    <Compile Include="astroML_sliceOPy_fourier.py" />
+    <Compile Include="astroML_tf_GausComparison.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Plot_Fig" />
+  </ItemGroup>
+  <ItemGroup>
+    <InterpreterReference Include="Global|PythonCore|3.6" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
+</Project>

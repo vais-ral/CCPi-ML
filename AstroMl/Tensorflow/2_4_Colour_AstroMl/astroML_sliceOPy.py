@@ -5,7 +5,7 @@ Created on Wed Aug 15 14:51:18 2018
 @author: lhe39759
 """
 import sys
-sys.path.append(r'C:\Users\lhe39759\Documents\GitHub/')
+sys.path.append(r'C:\Users\minns\OneDrive\Documents\Programming\GitHub/')
 from SliceOPy import NetSlice, DataSlice
 import keras
 import numpy as np
@@ -36,6 +36,8 @@ model = keras.Sequential([
             keras.layers.Dense(1, activation ="sigmoid")
             ])
 nets.append(NetSlice(model,'keras'))
+
+nets[0].gpuCheck()
 
 X_test_unbalanced = np.load('AstroML_X_Test_Shuffle_Split_0_7.npy')
 y_test_unbalanced = np.load('AstroML_Y_Test_Shuffle_Split_0_7.npy')

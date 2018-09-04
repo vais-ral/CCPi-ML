@@ -11,6 +11,15 @@ def dice_coeff(y_true, y_pred):
     score = (2. * intersection + smooth) / (K.sum(y_true_f) + K.sum(y_pred_f) + smooth)
     return score
 
+def dice_coeff_jake(y_true,y_pred): 
+    y_true_f = K.flatten(K.one_hot(K.cast(y_true, 'int32'), num_classes=2)[...,1:])
+    y_pred_f = K.flatten(y_pred[...,1:])
+    intersect = K.sum(y_true_f * y_pred_f, axis=-1)
+    denom = K.sum(y_true_f + y_pred_f, axis=-1)
+    return K.mean((2. * intersect / (denom + smooth)))
+def dice_loss_jake(y_true, y_pred):
+    loss = 1 - dice_coeff_jake(y_true, y_pred)
+    return loss
 
 def dice_loss(y_true, y_pred):
     loss = 1 - dice_coeff(y_true, y_pred)
@@ -22,7 +31,9 @@ def bce_dice_loss(y_true, y_pred):
     return loss
 
 def bce_dice_loss_jake(y_true, y_pred):
-    loss = categorical_crossentropy(y_true, y_pred) + dice_loss(y_true, y_pred)
+    print("here",y_true,y_pred)
+
+    loss = categorical_crossentropy(y_true, y_pred) + dice_loss_jake(y_true, y_pred)
     return loss
 
 def weighted_dice_coeff(y_true, y_pred, weight):
