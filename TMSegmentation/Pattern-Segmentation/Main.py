@@ -1,31 +1,12 @@
 # -*- coding: utf-8 -*-
 """
-Created on Thu Aug  9 13:16:19 2018
-#       "HiddenLayers":[
-#            {"Type": 1,
-#            "Width": 4,
-#            "Activation": "tanh"
-#            },
-#            {"Type": 1,
-#            "Width": 3,
-#            "Activation": "tanh"
-#            },
-#            {"Type": 1,
-#            "Width": 1,
-#            "Activation": "sigmoid"
-#            }]
-#
-#       }
-#
-
-
 @author: lhe39759
 """
 import matplotlib.pyplot as plt
 
 import numpy as np
 import sys
-sys.path.append(r'C:\Users\lhe39759\Documents\GitHub/')
+sys.path.append(r'C:\Users\minns\OneDrive\Documents\Programming\GitHub/')
 from SliceOPy import NetSlice, DataSlice
 from model import u_net as unet
 from keras.utils import plot_model
@@ -34,20 +15,21 @@ import keras
 from model.losses import bce_dice_loss, bce_dice_loss_jake, dice_loss, weighted_bce_dice_loss, weighted_dice_loss, dice_coeff
 from shape_pattern_gen_segmenter import generateImage
 
-
+ 
 #netData = DataSlice.NetData(features,labels,Shuffle=True,Rebalance=None,Split_Ratio = 0.7,Channel_Features = (256,256), Channel_Labels = (256,256))
 
 #unet.get_unet_256(input_shape=(256,256,1),num_classes=7)
 
 model = NetSlice(unet.get_unet_256(input_shape=(256,256,1),num_classes=2),'keras', None)
-#model.loadModel('modelSaveTest',customObject={'bce_dice_loss':bce_dice_loss,'dice_coeff':dice_coeff})
-model.compileModel(keras.optimizers.RMSprop(lr=0.001), bce_dice_loss, [dice_coeff])
-model.generativeDataTrain(generateImage, BatchSize=2, Epochs=1,Channel_Ordering=(256,256,1,2))
+model.loadModel('modelSaveTest',customObject={'bce_dice_loss':bce_dice_loss,'dice_coeff':dice_coeff})
+model.compileModel(keras.optimizers.RMSprop(lr=0.003), bce_dice_loss, [])
+model.generativeDataTrain(generateImage, BatchSize=10, Epochs=1,Channel_Ordering=(256,256,1,2))
 #model.trainModel(Epochs = 1000,Batch_size = 1000, Verbose = 2)
-
-#model.plotLearningCurve()
+fi = plt.figure()
+ax = fi.add_subplot(111)
+model.plotLearningCurve(Axes=ax,Plot_Dict={'loss':'Loss'})
 #print(model.getHistory())
-
+plt.show()
 #%%
 model.saveModel('modelSaveTest')
 #%%
@@ -57,7 +39,7 @@ model.saveModel('modelSaveTest')
 #netData = NetData(features,labels,Shuffle=True,Rebalance=None,Split_Ratio = 0.1)
 ##%%
 
-#model.generativeDataTesting(generateImage, SampleNumber=100,Threshold=1e-3)
+model.generativeDataTesting(generateImage, SampleNumber=1,Threshold=1e-3)
 #data = []
 #item = generateImage()
 #data.append(np.array(item))

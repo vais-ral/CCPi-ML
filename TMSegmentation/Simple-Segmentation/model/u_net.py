@@ -238,10 +238,9 @@ def get_unet_256(input_shape=(256, 256, 1),
     # 256
 
     classify = Conv2D(num_classes, (1, 1), activation='sigmoid')(up0)
-
     model = Model(inputs=inputs, outputs=classify)
+    model.compile(optimizer=RMSprop(lr=0.0001), loss=bce_dice_loss, metrics=[dice_coeff])
 
-   #model.compile(optimizer=RMSprop(lr=0.0001), loss=bce_dice_loss, metrics=[dice_coeff])
 
     return model
 
